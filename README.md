@@ -1,0 +1,2 @@
+# krex
+Kubernetes Resource Explorer
