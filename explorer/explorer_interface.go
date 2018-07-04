@@ -1,7 +1,7 @@
 package explorer
 
 type Explorable interface {
-	Title() string
+	//Title() string
 	List() error
 	RunPrompt() (string, error)
 	Execute(selection string) error

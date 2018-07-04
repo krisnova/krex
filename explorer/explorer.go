@@ -3,7 +3,6 @@ package explorer
 import "fmt"
 
 func Explore(explorable Explorable) error {
-	fmt.Println(explorable.Title())
 	err := explorable.List()
 	if err != nil {
 		return fmt.Errorf("error calling list: %v", err)

@@ -15,26 +15,14 @@
 package explorer
 
 import (
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
+	"os"
+	"os/exec"
 )
 
-var k8sclient *kubernetes.Clientset
-
-type RuntimeOptions struct {
-	KubeconfigPath string
-	ShellExecImage string
-}
-
-func Init(opt *RuntimeOptions) error {
-	config, err := clientcmd.BuildConfigFromFlags("", opt.KubeconfigPath)
-	if err != nil {
-		return err
-	}
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		return err
-	}
-	k8sclient = clientset
-	return nil
+func Exec(command string, args []string) error {
+	e := exec.Command(command, args...)
+	e.Stdout = os.Stdout
+	e.Stderr = os.Stderr
+	e.Stdin = os.Stdin
+	return e.Run()
 }
