@@ -123,8 +123,8 @@ func ListPodActions(above *Vertex) (*Vertex, error) {
 	v := &Vertex{}
 	prompt := promptui.Select{
 		Label: "Select Pod Action",
-		Items: []string{"Edit", "Describe", "Logs", "Containers", "Shell Debug"},
-		Size:  5,
+		Items: []string{"Edit", "Describe", "Logs", "Shell Debug"},
+		Size:  4,
 	}
 	v.Prompt = prompt
 	v.Above = above

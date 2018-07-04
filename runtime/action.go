@@ -14,12 +14,18 @@
 
 package runtime
 
-import "github.com/kubicorn/kubicorn/pkg/logger"
+import (
+	"os"
+	"os/exec"
+
+	"github.com/kubicorn/kubicorn/pkg/logger"
+)
 
 type Action func(params *ActionParametes) error
 
 type ActionParametes struct {
-	PodName string
+	PodName   string
+	Namespace string
 }
 
 func ActionEmpty(params *ActionParametes) error {
@@ -28,31 +34,44 @@ func ActionEmpty(params *ActionParametes) error {
 }
 
 func ActionEdit(params *ActionParametes) error {
-	logger.Info("Calling [EDIT] %s", params.PodName)
-	// TODO Implement this
-	return nil
+	logger.Info("Calling [EDIT] %s %s", params.Namespace, params.PodName)
+	return Exec("kubectl", []string{"edit", "pod", "--namespace", params.Namespace, params.PodName})
+	//f := cmdutil.NewFactory(nil)
+	//iostreams := genericclioptions.IOStreams{
+	//	ErrOut: os.Stderr,
+	//	In:     os.Stdin,
+	//	Out:    os.Stdout,
+	//}
+	//edit := cmd.NewCmdEdit(f, iostreams)
+	//return edit.RunE(edit, []string{"pod", params.PodName})
 }
 
 func ActionDescribe(params *ActionParametes) error {
 	logger.Info("Calling [DESCRIBE] %s", params.PodName)
-	// TODO Implement this
-	return nil
+	return Exec("kubectl", []string{"describe", "pod", "--namespace", params.Namespace, params.PodName})
 }
 
 func ActionLogs(params *ActionParametes) error {
 	logger.Info("Calling [LOGS] %s", params.PodName)
-	// TODO Implement this
-	return nil
+	return Exec("kubectl", []string{"logs", "--namespace", params.Namespace, params.PodName, "-f"})
 }
 
-func ActionContainers(params *ActionParametes) error {
-	logger.Info("Calling [CONTAINERS] %s", params.PodName)
-	// TODO Implement this
-	return nil
-}
+//func ActionContainers(params *ActionParametes) error {
+//	logger.Info("Calling [CONTAINERS] %s", params.PodName)
+//	// TODO Implement this
+//	return nil
+//}
 
 func ActionShellDebug(params *ActionParametes) error {
 	logger.Info("Calling [SHELL DEBUG] %s", params.PodName)
-	// TODO Implement this
+	return Exec("kubectl", []string{"exec", "-it", "--namespace", params.Namespace, params.PodName, "sh"})
 	return nil
+}
+
+func Exec(command string, args []string) error {
+	e := exec.Command(command, args...)
+	e.Stdout = os.Stdout
+	e.Stderr = os.Stderr
+	e.Stdin = os.Stdin
+	return e.Run()
 }

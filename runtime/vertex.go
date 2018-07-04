@@ -53,8 +53,8 @@ func (v *Vertex) Select() (*Vertex, Action, error) {
 			return nil, ActionDescribe, nil
 		case "logs":
 			return nil, ActionLogs, nil
-		case "containers":
-			return nil, ActionContainers, nil
+		//case "containers":
+		//	return nil, ActionContainers, nil
 		case "shell debug":
 			return nil, ActionShellDebug, nil
 		default:
@@ -72,7 +72,8 @@ func (v *Vertex) RecursiveSelect() error {
 	}
 	if v2 == nil {
 		err := action(&ActionParametes{
-			PodName: v.PreviousOutput,
+			PodName:   v.PreviousOutput,
+			Namespace: v.Namespace,
 		})
 		if err != nil {
 			return err
