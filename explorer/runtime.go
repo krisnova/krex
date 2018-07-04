@@ -15,6 +15,8 @@
 package explorer
 
 import (
+	"fmt"
+
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 )
@@ -30,6 +32,19 @@ type RuntimeOptions struct {
 }
 
 func Init(opt *RuntimeOptions) error {
+
+	s := `  _
+ | |
+ | | ___ __ _____  __
+ | |/ / '__/ _ \ \/ /
+ |   <| | |  __/>  <
+ |_|\_\_|  \___/_/\_\`
+
+	fmt.Println(s)
+	fmt.Println()
+	fmt.Println("Kubernetes Resource Explorer")
+	fmt.Println()
+
 	config, err := clientcmd.BuildConfigFromFlags("", opt.KubeconfigPath)
 	if err != nil {
 		return err
