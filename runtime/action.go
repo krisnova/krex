@@ -65,7 +65,6 @@ func ActionLogs(params *ActionParametes) error {
 func ActionShellDebug(params *ActionParametes) error {
 	logger.Info("Calling [SHELL DEBUG] %s", params.PodName)
 	return Exec("kubectl", []string{"exec", "-it", "--namespace", params.Namespace, params.PodName, "sh"})
-	return nil
 }
 
 func Exec(command string, args []string) error {
