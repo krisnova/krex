@@ -1,5 +1,5 @@
 # krex
-Kubernetes Resource Explorer
+Interactive Kubernetes Resource Explorer Thingy
 
 ## A gift
 
