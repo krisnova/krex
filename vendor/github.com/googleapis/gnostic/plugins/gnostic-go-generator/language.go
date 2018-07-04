@@ -15,9 +15,10 @@
 package main
 
 import (
-	surface "github.com/googleapis/gnostic/surface"
 	"strings"
 	"unicode"
+
+	surface "github.com/googleapis/gnostic/surface"
 )
 
 type GoLanguageModel struct{}

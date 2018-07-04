@@ -2,9 +2,10 @@ package main
 
 import (
 	"flag"
-	"github.com/lunixbochs/vtclean"
 	"io"
 	"os"
+
+	"github.com/lunixbochs/vtclean"
 )
 
 func main() {

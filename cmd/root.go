@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/kris-nova/krex/runtime"
+	"github.com/kris-nova/krex/explorer"
 	"github.com/kubicorn/kubicorn/pkg/local"
 	"github.com/kubicorn/kubicorn/pkg/logger"
 	"github.com/spf13/cobra"
@@ -33,33 +33,23 @@ var RootCmd = &cobra.Command{
 	Long:  `Explore Kubernetes resources like a boss.`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		// run
-
-		//TODO start with namespace
-		root := &runtime.Vertex{}
-		rt := runtime.NewRuntime(opt, root)
-
-		// Start with Namespaces
-		root.ListFunc = runtime.ListNamespaces
-
-		// TODO this is bunk as shit
-		rt = runtime.NewRuntime(opt, root)
-
-		err := rt.Init()
+		//TODO start with cluster
+		err := explorer.Init(opt)
 		if err != nil {
-			logger.Critical(err.Error())
+			logger.Critical("error during init: %v", err)
 			os.Exit(1)
 		}
-		err = rt.Walk()
+		clusterExplorer := &explorer.ClusterExplorer{}
+		err = explorer.Explore(clusterExplorer)
 		if err != nil {
-			logger.Critical(err.Error())
+			logger.Critical("error during explore: %v", err)
 			os.Exit(1)
 		}
 		os.Exit(0)
 	},
 }
 
-var opt = &runtime.RuntimeOptions{}
+var opt = &explorer.RuntimeOptions{}
 
 func Execute() {
 	if err := RootCmd.Execute(); err != nil {

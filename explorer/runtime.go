@@ -12,11 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package runtime
+package explorer
 
 import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+)
+
+var (
+	k8sclient *kubernetes.Clientset
+	options   *RuntimeOptions
 )
 
 type RuntimeOptions struct {
@@ -24,21 +29,8 @@ type RuntimeOptions struct {
 	ShellExecImage string
 }
 
-type Runtime struct {
-	options   *RuntimeOptions
-	root      *Vertex
-	clientset *kubernetes.Clientset
-}
-
-func NewRuntime(opt *RuntimeOptions, root *Vertex) *Runtime {
-	return &Runtime{
-		options: opt,
-		root:    root,
-	}
-}
-
-func (r *Runtime) Init() error {
-	config, err := clientcmd.BuildConfigFromFlags("", r.options.KubeconfigPath)
+func Init(opt *RuntimeOptions) error {
+	config, err := clientcmd.BuildConfigFromFlags("", opt.KubeconfigPath)
 	if err != nil {
 		return err
 	}
@@ -46,13 +38,7 @@ func (r *Runtime) Init() error {
 	if err != nil {
 		return err
 	}
-	r.clientset = clientset
-	runtimeInstance = r
+	k8sclient = clientset
+	options = opt
 	return nil
 }
-
-func (r *Runtime) Walk() error {
-	return r.root.RecursiveSelect()
-}
-
-var runtimeInstance *Runtime

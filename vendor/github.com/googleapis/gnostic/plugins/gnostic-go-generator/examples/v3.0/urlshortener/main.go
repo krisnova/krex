@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/docopt/docopt-go"
 	"github.com/googleapis/gnostic/plugins/gnostic-go-generator/examples/googleauth"
 	"github.com/googleapis/gnostic/plugins/gnostic-go-generator/examples/v3.0/urlshortener/urlshortener"
 )

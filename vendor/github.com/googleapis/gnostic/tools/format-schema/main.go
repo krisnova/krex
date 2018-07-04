@@ -17,9 +17,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/googleapis/gnostic/jsonschema"
 	"os"
 	"path"
+
+	"github.com/googleapis/gnostic/jsonschema"
 )
 
 func main() {

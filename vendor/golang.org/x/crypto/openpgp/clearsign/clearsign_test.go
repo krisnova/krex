@@ -6,8 +6,9 @@ package clearsign
 
 import (
 	"bytes"
-	"golang.org/x/crypto/openpgp"
 	"testing"
+
+	"golang.org/x/crypto/openpgp"
 )
 
 func testParse(t *testing.T, input []byte, expected, expectedPlaintext string) {
