@@ -20,7 +20,6 @@ import (
 	"reflect"
 
 	"github.com/kubicorn/kubicorn/profiles/amazon"
-	"github.com/minio/minio-go"
 )
 
 const (

@@ -30,8 +30,9 @@ package issue34
 
 import (
 	"bytes"
-	"github.com/gogo/protobuf/proto"
 	"testing"
+
+	"github.com/gogo/protobuf/proto"
 )
 
 func TestZeroLengthOptionalBytes(t *testing.T) {

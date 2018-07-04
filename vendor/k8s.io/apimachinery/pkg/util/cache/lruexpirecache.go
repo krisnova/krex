@@ -19,8 +19,6 @@ package cache
 import (
 	"sync"
 	"time"
-
-	"github.com/hashicorp/golang-lru"
 )
 
 // Clock defines an interface for obtaining the current time

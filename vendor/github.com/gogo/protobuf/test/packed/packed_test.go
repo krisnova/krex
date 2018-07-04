@@ -31,11 +31,12 @@ package packed
 import (
 	"bytes"
 	"fmt"
-	"github.com/gogo/protobuf/proto"
 	math_rand "math/rand"
 	"testing"
 	"time"
 	"unsafe"
+
+	"github.com/gogo/protobuf/proto"
 )
 
 /*
