@@ -25,6 +25,7 @@ import (
 	"github.com/kubicorn/kubicorn/pkg/state/git"
 	"github.com/kubicorn/kubicorn/pkg/state/jsonfs"
 	"github.com/kubicorn/kubicorn/pkg/state/s3"
+	"github.com/minio/minio-go"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

@@ -17,12 +17,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/googleapis/gnostic/jsonschema"
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"path"
-
-	"github.com/googleapis/gnostic/jsonschema"
-	"gopkg.in/yaml.v2"
 )
 
 func usage() {
