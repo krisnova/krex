@@ -1,9 +1,9 @@
 .DEFAULT_GOAL = all
 
-version  := $(shell git rev-list --count HEAD).$(shell git rev-parse --short HEAD)
+version  := $(shell git rev-parse --short HEAD)
 
 name     := krex
-package  := github.com/frezbo/$(name)
+package  := github.com/kris-nova/$(name)
 packages := $(shell go list ./... | grep -v /vendor/)
 
 .PHONY: all
@@ -16,7 +16,7 @@ dependencies::
 
 .PHONY: build
 build::
-	go build -o krex .
+	go build -o krex -ldflags "-X ${package}/cmd.version=${version}" .
 
 .PHONY: test
 test::

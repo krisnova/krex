@@ -51,6 +51,9 @@ var RootCmd = &cobra.Command{
 
 var opt = &explorer.RuntimeOptions{}
 
+// Passed from Makefile
+var version = ""
+
 func Execute() {
 	if err := RootCmd.Execute(); err != nil {
 		fmt.Println(err)
@@ -62,5 +65,5 @@ func init() {
 	RootCmd.PersistentFlags().StringVarP(&opt.KubeconfigPath, "kubeconfig", "k", local.Expand("~/.kube/config"), "The path to a kube config file on the local filesystem")
 	RootCmd.PersistentFlags().IntVarP(&logger.Level, "verbosity", "v", 4, "Verbosity 0-4")
 	RootCmd.Flags().StringVarP(&opt.ShellExecImage, "image", "i", "ubuntu:latest", "The container image to use for a shell debug")
-
+	RootCmd.Version = version
 }
