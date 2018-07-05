@@ -20,6 +20,14 @@
 #  name = "github.com/x/y"
 #  version = "2.4.0"
 
+required = [
+  "cloud.google.com/go/compute/metadata",
+  "github.com/Azure/go-autorest/autorest",
+  "github.com/Azure/go-autorest/autorest/adal",
+  "github.com/Azure/go-autorest/autorest/azure",
+  "github.com/gophercloud/gophercloud",
+  "github.com/gophercloud/gophercloud/openstack"
+]
 
 [[constraint]]
   name = "github.com/manifoldco/promptui"
