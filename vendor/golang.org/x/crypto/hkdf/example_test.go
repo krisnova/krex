@@ -9,9 +9,8 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"fmt"
-	"io"
-
 	"golang.org/x/crypto/hkdf"
+	"io"
 )
 
 // Usage example that expands one master key into three other cryptographically

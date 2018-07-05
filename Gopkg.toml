@@ -20,6 +20,7 @@
 #  name = "github.com/x/y"
 #  version = "2.4.0"
 
+required = ["cloud.google.com/go/compute/metadata"]
 
 [[constraint]]
   name = "github.com/manifoldco/promptui"

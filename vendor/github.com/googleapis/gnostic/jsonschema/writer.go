@@ -16,7 +16,6 @@ package jsonschema
 
 import (
 	"fmt"
-
 	"gopkg.in/yaml.v2"
 )
 

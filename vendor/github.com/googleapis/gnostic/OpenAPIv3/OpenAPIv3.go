@@ -18,11 +18,10 @@ package openapi_v3
 
 import (
 	"fmt"
-	"regexp"
-	"strings"
-
 	"github.com/googleapis/gnostic/compiler"
 	"gopkg.in/yaml.v2"
+	"regexp"
+	"strings"
 )
 
 // Version returns the package name (and OpenAPI version).
