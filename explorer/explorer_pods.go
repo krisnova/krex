@@ -66,3 +66,7 @@ func (n *PodsExplorer) Execute(selection string) error {
 		return fmt.Errorf("unable to parse selection: %s", selection)
 	}
 }
+
+func (n *PodsExplorer) Kind() string {
+	return "pods"
+}

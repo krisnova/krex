@@ -59,3 +59,7 @@ func (n *DaemonSetExplorer) Execute(selection string) error {
 		return fmt.Errorf("unable to parse selection: %s", selection)
 	}
 }
+
+func (n *DaemonSetExplorer) Kind() string {
+	return "daemonset"
+}

@@ -57,3 +57,7 @@ func (n *StatefulSetExplorer) Execute(selection string) error {
 		return fmt.Errorf("unable to parse selection: %s", selection)
 	}
 }
+
+func (n *StatefulSetExplorer) Kind() string {
+	return "statefulset"
+}

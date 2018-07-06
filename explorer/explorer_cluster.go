@@ -51,3 +51,7 @@ func (n *ClusterExplorer) Execute(selection string) error {
 		return fmt.Errorf("unable to parse selection: %s", selection)
 	}
 }
+
+func (n *ClusterExplorer) Kind() string {
+	return "cluster"
+}

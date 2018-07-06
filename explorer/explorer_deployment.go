@@ -57,3 +57,7 @@ func (n *DeploymentExplorer) Execute(selection string) error {
 		return fmt.Errorf("unable to parse selection: %s", selection)
 	}
 }
+
+func (n *DeploymentExplorer) Kind() string {
+	return "deployment"
+}
