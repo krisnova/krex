@@ -2,8 +2,12 @@
 
 Kubernetes Resource Explorer
 
-Interactive Kubernetes Resource Explorer Thingy
+Krex works by building a directional graph (digraph) in memory of various Kubernetes resources, and then giving you the graph one layer at a time to explore using an interactive drop down menu. Explore Kubernetes right from your terminal.
 
-## A gift
+## Current state of krex
 
-This is honorably presented to Amy Chen as a reward for straight A's last semester, and to remind her what happens in our family whenever you get a B.
+Handy tool for exploring applications in Kubernetes
+
+## Future of krex
+
+Global tool for exploring all things in Kubernetes
