@@ -43,8 +43,9 @@ func (n *DaemonSetExplorer) Execute(selection string) error {
 			Filters: map[string]string{
 				"k8s-app": n.DaemonSetToExplore,
 			},
-			NamespaceToExplore: n.NamespaceToExplore,
-			PreviousExplorer:   n,
+			NamespaceToExplore:   n.NamespaceToExplore,
+			PreviousExplorer:     n,
+			PreviousResourceName: n.DaemonSetToExplore,
 		}
 		return Explore(podsExplorer)
 	case editLabel:

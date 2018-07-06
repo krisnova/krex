@@ -41,8 +41,9 @@ func (n *DeploymentExplorer) Execute(selection string) error {
 			Filters: map[string]string{
 				"k8s-app": n.DeploymentToExplore,
 			},
-			NamespaceToExplore: n.NamespaceToExplore,
-			PreviousExplorer:   n,
+			NamespaceToExplore:   n.NamespaceToExplore,
+			PreviousExplorer:     n,
+			PreviousResourceName: n.DeploymentToExplore,
 		}
 		return Explore(podsExplorer)
 	case editLabel:

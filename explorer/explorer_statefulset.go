@@ -41,8 +41,9 @@ func (n *StatefulSetExplorer) Execute(selection string) error {
 			Filters: map[string]string{
 				"k8s-app": n.StatefulSetToExplore,
 			},
-			NamespaceToExplore: n.NamespaceToExplore,
-			PreviousExplorer:   n,
+			NamespaceToExplore:   n.NamespaceToExplore,
+			PreviousExplorer:     n,
+			PreviousResourceName: n.StatefulSetToExplore,
 		}
 		return Explore(podsExplorer)
 	case editLabel:

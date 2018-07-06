@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	apiv1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
 )
 
 const (
@@ -13,24 +13,53 @@ const (
 )
 
 type PodsExplorer struct {
-	Items              []*MenuItem
-	PreviousItem       *MenuItem
-	NamespaceToExplore string
-	Filters            map[string]string
-	PreviousExplorer   Explorable
+	Items                []*MenuItem
+	PreviousItem         *MenuItem
+	NamespaceToExplore   string
+	Filters              map[string]string
+	PreviousExplorer     Explorable
+	PreviousResourceName string
 }
 
 func (n *PodsExplorer) List() error {
 	n.Items = []*MenuItem{}
 
-	// Pods
-	pods, err := k8sclient.CoreV1().Pods(n.NamespaceToExplore).List(v1.ListOptions{
-		LabelSelector: labels.SelectorFromSet(n.Filters).String(),
-	})
+	// List Pods
+	pods, err := k8sclient.Core().Pods(n.NamespaceToExplore).List(v1.ListOptions{})
 	if err != nil {
 		return err
 	}
-	for _, item := range pods.Items {
+
+	var podlist []apiv1.Pod
+	switch n.PreviousExplorer.Kind() {
+	case "deployment":
+		// get replicasets
+		replicaSetMap := make(map[string]bool)
+		replicaSets, err := k8sclient.Extensions().ReplicaSets(n.NamespaceToExplore).List(v1.ListOptions{})
+		if err != nil {
+			return err
+		}
+
+		for _, replicaset := range replicaSets.Items {
+			for _, owner := range replicaset.GetOwnerReferences() {
+				if strings.ToLower(owner.Name) == n.PreviousResourceName {
+					replicaSetMap[replicaset.GetName()] = true
+					break
+				}
+			}
+		}
+
+		// get pods
+		podlist = getOwnerPods(pods, replicaSetMap, "replicaset")
+
+	case "statefulset":
+		podlist = getOwnerPods(pods, map[string]bool{n.PreviousResourceName: true}, "statefulset")
+
+	case "daemonset":
+		podlist = getOwnerPods(pods, map[string]bool{n.PreviousResourceName: true}, "daemonset")
+	}
+
+	for _, item := range podlist {
 		m := &MenuItem{}
 		m.SetName(item.Name)
 		m.SetKind(podLabel)
@@ -38,6 +67,22 @@ func (n *PodsExplorer) List() error {
 	}
 	n.Items = AddGoBack(n.Items)
 	return nil
+}
+
+// getOwnerPods is a functio that gets pods from map of owners
+func getOwnerPods(pods *apiv1.PodList, owners map[string]bool, resourceKindToMatch string) []apiv1.Pod {
+	var podlist []apiv1.Pod
+
+	for _, pod := range pods.Items {
+		for _, owner := range pod.GetOwnerReferences() {
+			if _, ok := owners[owner.Name]; ok && strings.ToLower(owner.Kind) == resourceKindToMatch {
+				podlist = append(podlist, pod)
+				break
+			}
+		}
+	}
+
+	return podlist
 }
 
 func (n *PodsExplorer) RunPrompt() (string, error) {
