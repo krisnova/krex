@@ -120,3 +120,7 @@ func (n *NamespaceExplorer) Execute(selection string) error {
 		return fmt.Errorf("unable to parse selection: %s", selection)
 	}
 }
+
+func (n *NamespaceExplorer) Kind() string {
+	return "namespace"
+}

@@ -5,4 +5,5 @@ type Explorable interface {
 	List() error
 	RunPrompt() (string, error)
 	Execute(selection string) error
+	Kind() string
 }
