@@ -2,6 +2,7 @@ package explorer
 
 import (
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -25,6 +26,7 @@ func (n *DaemonSetExplorer) List() error {
 	m.SetName("Get Pods")
 	n.Items = append(n.Items, m)
 	n.Items = AddGoBack(n.Items)
+	n.Items = AddExit(n.Items)
 	return nil
 }
 
@@ -56,6 +58,9 @@ func (n *DaemonSetExplorer) Execute(selection string) error {
 			return Explore(n.PreviousExplorer)
 		}
 		return fmt.Errorf("unknown action selection: %s", selection)
+	case exitLabel:
+		os.Exit(0)
+		return nil
 	default:
 		return fmt.Errorf("unable to parse selection: %s", selection)
 	}

@@ -2,6 +2,7 @@ package explorer
 
 import (
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -51,6 +52,7 @@ func (n *PodExplorer) List() error {
 	// Log and Describe
 
 	n.Items = AddGoBack(n.Items)
+	n.Items = AddExit(n.Items)
 	return nil
 }
 
@@ -84,6 +86,9 @@ func (n *PodExplorer) Execute(selection string) error {
 			return Explore(n.PreviousExplorer)
 		}
 		return fmt.Errorf("unknown action selection: %s", selection)
+	case exitLabel:
+		os.Exit(0)
+		return nil
 	default:
 		return fmt.Errorf("unable to parse selection: %s", selection)
 	}
