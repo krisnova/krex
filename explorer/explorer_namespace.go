@@ -2,7 +2,6 @@ package explorer
 
 import (
 	"fmt"
-	"os"
 
 	"strings"
 
@@ -119,8 +118,7 @@ func (n *NamespaceExplorer) Execute(selection string) error {
 		Exec("kubectl", []string{"edit", "namespace", n.NamespaceToExplore})
 		return Explore(n)
 	case exitLabel:
-		os.Exit(0)
-		return nil
+		return Exit()
 	default:
 		return fmt.Errorf("unable to parse selection: %s", selection)
 	}

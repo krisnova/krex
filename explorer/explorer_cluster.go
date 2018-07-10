@@ -2,7 +2,6 @@ package explorer
 
 import (
 	"fmt"
-	"os"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -50,8 +49,7 @@ func (n *ClusterExplorer) Execute(selection string) error {
 		}
 		return Explore(namespaceExplorer)
 	case exitLabel:
-		os.Exit(0)
-		return nil
+		return Exit()
 	default:
 		return fmt.Errorf("unable to parse selection: %s", selection)
 	}

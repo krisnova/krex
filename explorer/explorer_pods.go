@@ -2,7 +2,6 @@ package explorer
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	apiv1 "k8s.io/api/core/v1"
@@ -110,8 +109,7 @@ func (n *PodsExplorer) Execute(selection string) error {
 		}
 		return fmt.Errorf("unknown action selection: %s", selection)
 	case exitLabel:
-		os.Exit(0)
-		return nil
+		return Exit()
 	default:
 		return fmt.Errorf("unable to parse selection: %s", selection)
 	}
