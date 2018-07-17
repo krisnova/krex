@@ -68,6 +68,7 @@ func (n *NamespaceExplorer) List() error {
 	m.SetName(fmt.Sprintf("Run a debugging pod in the Namespace and shell exec [%s]", options.ShellExecImage))
 	n.Items = append(n.Items, m)
 	n.Items = AddGoBack(n.Items)
+	n.Items = AddExit(n.Items)
 	return nil
 }
 
@@ -116,6 +117,8 @@ func (n *NamespaceExplorer) Execute(selection string) error {
 	case editLabel:
 		Exec("kubectl", []string{"edit", "namespace", n.NamespaceToExplore})
 		return Explore(n)
+	case exitLabel:
+		return Exit()
 	default:
 		return fmt.Errorf("unable to parse selection: %s", selection)
 	}

@@ -27,6 +27,7 @@ func (n *ClusterExplorer) List() error {
 		m.SetName(item.Name)
 		n.Items = append(n.Items, m)
 	}
+	n.Items = AddExit(n.Items)
 	// TODO add CRDs
 	return nil
 }
@@ -47,6 +48,8 @@ func (n *ClusterExplorer) Execute(selection string) error {
 			PreviousExplorer:   n,
 		}
 		return Explore(namespaceExplorer)
+	case exitLabel:
+		return Exit()
 	default:
 		return fmt.Errorf("unable to parse selection: %s", selection)
 	}

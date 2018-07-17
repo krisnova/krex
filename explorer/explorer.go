@@ -1,5 +1,7 @@
 package explorer
 
+import "os"
+
 func Explore(explorable Explorable) error {
 	err := explorable.List()
 	if err != nil {
@@ -16,5 +18,10 @@ func Explore(explorable Explorable) error {
 		return err
 		//return fmt.Errorf("error calling execute: %v", err)
 	}
+	return nil
+}
+
+func Exit() error {
+	os.Exit(0)
 	return nil
 }

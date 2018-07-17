@@ -11,6 +11,7 @@ import (
 
 const (
 	editLabel = "Edit"
+	exitLabel = "Exit"
 )
 
 type MenuItem struct {
@@ -78,5 +79,12 @@ func AddEdit(prev *MenuItem, items []*MenuItem) []*MenuItem {
 	m := &MenuItem{}
 	m.SetKind(editLabel)
 	m.SetName(fmt.Sprintf("%s %s (%s)", prev.GetKind(), prev.GetName(), os.Getenv("EDITOR")))
+	return append(items, m)
+}
+
+func AddExit(items []*MenuItem) []*MenuItem {
+	m := &MenuItem{}
+	m.SetKind(exitLabel)
+	m.SetName("Exit")
 	return append(items, m)
 }
