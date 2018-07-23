@@ -229,7 +229,7 @@ var commands = []struct {
 	},
 	{
 		Name: "createcluster",
-		Desc: "Create a cluster in the configured instance (replication alpha)",
+		Desc: "Create a cluster in the configured instance ",
 		do:   doCreateCluster,
 		Usage: "cbt createcluster <cluster-id> <zone> <num-nodes> <storage type>\n" +
 			"  cluster-id		Permanent, unique id for the cluster in the instance\n" +
@@ -273,7 +273,7 @@ var commands = []struct {
 	},
 	{
 		Name:     "deletecluster",
-		Desc:     "Delete a cluster from the configured instance (replication alpha)",
+		Desc:     "Delete a cluster from the configured instance ",
 		do:       doDeleteCluster,
 		Usage:    "cbt deletecluster <cluster>",
 		Required: cbtconfig.ProjectAndInstanceRequired,
@@ -283,7 +283,7 @@ var commands = []struct {
 		Desc: "Delete all cells in a column",
 		do:   doDeleteColumn,
 		Usage: "cbt deletecolumn <table> <row> <family> <column> [app-profile=<app profile id>]\n" +
-			"  app-profile=<app profile id>		The app profile id to use for the request (replication alpha)\n",
+			"  app-profile=<app profile id>		The app profile id to use for the request\n",
 		Required: cbtconfig.ProjectAndInstanceRequired,
 	},
 	{
@@ -298,7 +298,7 @@ var commands = []struct {
 		Desc: "Delete a row",
 		do:   doDeleteRow,
 		Usage: "cbt deleterow <table> <row> [app-profile=<app profile id>]\n" +
-			"  app-profile=<app profile id>		The app profile id to use for the request (replication alpha)\n",
+			"  app-profile=<app profile id>		The app profile id to use for the request\n",
 		Required: cbtconfig.ProjectAndInstanceRequired,
 	},
 	{
@@ -344,7 +344,7 @@ var commands = []struct {
 			"[app-profile=<app profile id>]\n" +
 			"  columns=[family]:[qualifier],...	Read only these columns, comma-separated\n" +
 			"  cells-per-column=<n> 			Read only this many cells per column\n" +
-			"  app-profile=<app profile id>		The app profile id to use for the request (replication alpha)\n",
+			"  app-profile=<app profile id>		The app profile id to use for the request\n",
 		Required: cbtconfig.ProjectAndInstanceRequired,
 	},
 	{
@@ -376,7 +376,7 @@ var commands = []struct {
 			"  columns=[family]:[qualifier],...	Read only these columns, comma-separated\n" +
 			"  count=<n>				Read only this many rows\n" +
 			"  cells-per-column=<n>			Read only this many cells per column\n" +
-			"  app-profile=<app profile id>		The app profile id to use for the request (replication alpha)\n",
+			"  app-profile=<app profile id>		The app profile id to use for the request\n",
 		Required: cbtconfig.ProjectAndInstanceRequired,
 	},
 	{
@@ -384,7 +384,7 @@ var commands = []struct {
 		Desc: "Set value of a cell",
 		do:   doSet,
 		Usage: "cbt set <table> <row> [app-profile=<app profile id>] family:column=val[@ts] ...\n" +
-			"  app-profile=<app profile id>		The app profile id to use for the request (replication alpha)\n" +
+			"  app-profile=<app profile id>		The app profile id to use for the request\n" +
 			"  family:column=val[@ts] may be repeated to set multiple cells.\n" +
 			"\n" +
 			"  ts is an optional integer timestamp.\n" +
@@ -396,7 +396,7 @@ var commands = []struct {
 		Name: "setgcpolicy",
 		Desc: "Set the GC policy for a column family",
 		do:   doSetGCPolicy,
-		Usage: "cbt setgcpolicy <table> <family> ( maxage=<d> | maxversions=<n> )\n" +
+		Usage: "cbt setgcpolicy <table> <family> ( maxage=<d> | maxversions=<n> | never)\n" +
 			"\n" +
 			`  maxage=<d>		Maximum timestamp age to preserve (e.g. "1h", "4d")` + "\n" +
 			"  maxversions=<n>	Maximum number of versions to preserve",
@@ -404,7 +404,7 @@ var commands = []struct {
 	},
 	{
 		Name:     "waitforreplication",
-		Desc:     "Block until all the completed writes have been replicated to all the clusters (replication alpha)",
+		Desc:     "Block until all the completed writes have been replicated to all the clusters",
 		do:       doWaitForReplicaiton,
 		Usage:    "cbt waitforreplication <table>",
 		Required: cbtconfig.ProjectAndInstanceRequired,
@@ -513,7 +513,6 @@ func doCount(ctx context.Context, args ...string) {
 	if err != nil {
 		log.Fatalf("Reading rows: %v", err)
 	}
-	fmt.Println(n)
 }
 
 func doCreateTable(ctx context.Context, args ...string) {
@@ -1155,7 +1154,7 @@ func doSet(ctx context.Context, args ...string) {
 
 func doSetGCPolicy(ctx context.Context, args ...string) {
 	if len(args) < 3 {
-		log.Fatalf("usage: cbt setgcpolicy <table> <family> ( maxage=<d> | maxversions=<n> | maxage=<d> (and|or) maxversions=<n> )")
+		log.Fatalf("usage: cbt setgcpolicy <table> <family> ( maxage=<d> | maxversions=<n> | maxage=<d> (and|or) maxversions=<n> | never )")
 	}
 	table := args[0]
 	fam := args[1]
@@ -1183,6 +1182,7 @@ func doWaitForReplicaiton(ctx context.Context, args ...string) {
 
 func parseGCPolicy(policyStr string) (bigtable.GCPolicy, error) {
 	words := strings.Fields(policyStr)
+
 	switch len(words) {
 	case 1:
 		return parseSinglePolicy(words[0])
@@ -1211,10 +1211,16 @@ func parseGCPolicy(policyStr string) (bigtable.GCPolicy, error) {
 
 func parseSinglePolicy(s string) (bigtable.GCPolicy, error) {
 	words := strings.Split(s, "=")
-	if len(words) != 2 {
-		return nil, fmt.Errorf("Expected 'name=value', got %q", words)
+	if len(words) != 2 && words[0] != "never" {
+		return nil, fmt.Errorf("Expected 'name=value ', got %q", words)
 	}
+
 	switch words[0] {
+	case "never":
+		if len(words) != 1 {
+			return nil, fmt.Errorf("Expected 'never', got %q", s)
+		}
+		return bigtable.NoGcPolicy(), nil
 	case "maxage":
 		d, err := parseDuration(words[1])
 		if err != nil {
@@ -1228,7 +1234,7 @@ func parseSinglePolicy(s string) (bigtable.GCPolicy, error) {
 		}
 		return bigtable.MaxVersionsPolicy(int(n)), nil
 	default:
-		return nil, fmt.Errorf("Expected 'maxage' or 'maxversions', got %q", words[1])
+		return nil, fmt.Errorf("Expected 'maxage' or 'maxversions', got %q", words[len(words)-1])
 	}
 	return nil, nil
 }
@@ -1400,9 +1406,9 @@ func doGetAppProfile(ctx context.Context, args ...string) {
 		log.Fatalln("usage: cbt getappprofile <instance-id> <profile-id>")
 	}
 
-	instanceId := args[0]
-	profileId := args[1]
-	profile, err := getInstanceAdminClient().GetAppProfile(ctx, instanceId, profileId)
+	instanceID := args[0]
+	profileID := args[1]
+	profile, err := getInstanceAdminClient().GetAppProfile(ctx, instanceID, profileID)
 	if err != nil {
 		log.Fatalf("Failed to get app profile : %v", err)
 	}

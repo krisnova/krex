@@ -5,8 +5,6 @@ import (
 	"strings"
 
 	"os"
-
-	"github.com/manifoldco/promptui"
 )
 
 const (
@@ -53,19 +51,6 @@ func (m *MenuItem) GetKind() string {
 }
 func (m *MenuItem) GetName() string {
 	return m.name
-}
-
-func NewPromptFromMenuItems(title string, items []*MenuItem) promptui.Select {
-	var strs []string
-	for _, item := range items {
-		strs = append(strs, item.GetReadable())
-	}
-	p := promptui.Select{
-		Label: title,
-		Items: strs,
-		Size:  len(strs),
-	}
-	return p
 }
 
 func AddGoBack(items []*MenuItem) []*MenuItem {

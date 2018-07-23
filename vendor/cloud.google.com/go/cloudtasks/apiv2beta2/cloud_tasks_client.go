@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/internal/version"
+	"github.com/golang/protobuf/proto"
 	gax "github.com/googleapis/gax-go"
 	"golang.org/x/net/context"
 	"google.golang.org/api/iterator"
@@ -85,7 +86,7 @@ func defaultCallOptions() *CallOptions {
 		GetQueue:           retry[[2]string{"default", "idempotent"}],
 		CreateQueue:        retry[[2]string{"default", "non_idempotent"}],
 		UpdateQueue:        retry[[2]string{"default", "non_idempotent"}],
-		DeleteQueue:        retry[[2]string{"default", "non_idempotent"}],
+		DeleteQueue:        retry[[2]string{"default", "idempotent"}],
 		PurgeQueue:         retry[[2]string{"default", "non_idempotent"}],
 		PauseQueue:         retry[[2]string{"default", "non_idempotent"}],
 		ResumeQueue:        retry[[2]string{"default", "non_idempotent"}],
@@ -168,6 +169,7 @@ func (c *Client) ListQueues(ctx context.Context, req *taskspb.ListQueuesRequest,
 	ctx = insertMetadata(ctx, c.xGoogMetadata, md)
 	opts = append(c.CallOptions.ListQueues[0:len(c.CallOptions.ListQueues):len(c.CallOptions.ListQueues)], opts...)
 	it := &QueueIterator{}
+	req = proto.Clone(req).(*taskspb.ListQueuesRequest)
 	it.InternalFetch = func(pageSize int, pageToken string) ([]*taskspb.Queue, string, error) {
 		var resp *taskspb.ListQueuesResponse
 		req.PageToken = pageToken
@@ -195,6 +197,7 @@ func (c *Client) ListQueues(ctx context.Context, req *taskspb.ListQueuesRequest,
 		return nextPageToken, nil
 	}
 	it.pageInfo, it.nextFunc = iterator.NewPageInfo(fetch, it.bufLen, it.takeBuf)
+	it.pageInfo.MaxSize = int(req.PageSize)
 	return it
 }
 
@@ -453,6 +456,7 @@ func (c *Client) ListTasks(ctx context.Context, req *taskspb.ListTasksRequest, o
 	ctx = insertMetadata(ctx, c.xGoogMetadata, md)
 	opts = append(c.CallOptions.ListTasks[0:len(c.CallOptions.ListTasks):len(c.CallOptions.ListTasks)], opts...)
 	it := &TaskIterator{}
+	req = proto.Clone(req).(*taskspb.ListTasksRequest)
 	it.InternalFetch = func(pageSize int, pageToken string) ([]*taskspb.Task, string, error) {
 		var resp *taskspb.ListTasksResponse
 		req.PageToken = pageToken
@@ -480,6 +484,7 @@ func (c *Client) ListTasks(ctx context.Context, req *taskspb.ListTasksRequest, o
 		return nextPageToken, nil
 	}
 	it.pageInfo, it.nextFunc = iterator.NewPageInfo(fetch, it.bufLen, it.takeBuf)
+	it.pageInfo.MaxSize = int(req.PageSize)
 	return it
 }
 
@@ -501,11 +506,6 @@ func (c *Client) GetTask(ctx context.Context, req *taskspb.GetTaskRequest, opts 
 }
 
 // CreateTask creates a task and adds it to a queue.
-//
-// To add multiple tasks at the same time, use
-// HTTP batching (at /storage/docs/json_api/v1/how-tos/batch)
-// or the batching documentation for your client library, for example
-// https://developers.google.com/api-client-library/python/guide/batch.
 //
 // Tasks cannot be updated after creation; there is no UpdateTask command.
 //
@@ -598,11 +598,6 @@ func (c *Client) LeaseTasks(ctx context.Context, req *taskspb.LeaseTasksRequest,
 // by a later [LeaseTasks][google.cloud.tasks.v2beta2.CloudTasks.LeaseTasks],
 // [GetTask][google.cloud.tasks.v2beta2.CloudTasks.GetTask], or
 // [ListTasks][google.cloud.tasks.v2beta2.CloudTasks.ListTasks].
-//
-// To acknowledge multiple tasks at the same time, use
-// HTTP batching (at /storage/docs/json_api/v1/how-tos/batch)
-// or the batching documentation for your client library, for example
-// https://developers.google.com/api-client-library/python/guide/batch.
 func (c *Client) AcknowledgeTask(ctx context.Context, req *taskspb.AcknowledgeTaskRequest, opts ...gax.CallOption) error {
 	md := metadata.Pairs("x-goog-request-params", fmt.Sprintf("%s=%v", "name", req.GetName()))
 	ctx = insertMetadata(ctx, c.xGoogMetadata, md)

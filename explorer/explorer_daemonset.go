@@ -30,9 +30,12 @@ func (n *DaemonSetExplorer) List() error {
 }
 
 func (n *DaemonSetExplorer) RunPrompt() (string, error) {
-	prompt := NewPromptFromMenuItems("Select daemonset resources: ", n.Items)
-	_, selection, err := prompt.Run()
-	return selection, err
+	var strs []string
+	for _, item := range n.Items {
+		strs = append(strs, item.GetReadable())
+	}
+	selection := transXY.Prompt("Select DaemonSet resources", strs)
+	return selection, nil
 }
 
 func (n *DaemonSetExplorer) Execute(selection string) error {
