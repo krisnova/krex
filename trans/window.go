@@ -1,20 +1,20 @@
 package trans
 
-// goncurses - ncurses library for Go.
-// Copyright 2011 Rob Thornton. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
-/* This example show a basic menu similar to that found in the ncurses
- * examples from TLDP */
+/*
+ * The window file will ultimately be the glue between the rest
+ * of krex and the user's terminal
+ *
+ * TODO @kris-nova Can we please make this beautiful and pretty and wonderful
+ *
+ */
 
 import (
 	. "github.com/rthornton128/goncurses"
 )
 
 const (
-	DefaultHeight = 10
-	DefaultWidth  = 30
+	DefaultHeight = 50
+	DefaultWidth  = 200
 )
 
 type TransWindow struct {
@@ -27,7 +27,6 @@ type TransWindow struct {
 }
 
 func GetNewWindow(height, width int) (*TransWindow, error) {
-
 	stdscr, err := Init()
 	if err != nil {
 		return nil, err
@@ -54,24 +53,41 @@ func (tw *TransWindow) StartScreen(msg string) error {
 	Raw(true)
 	Echo(false)
 	Cursor(0)
-	stdscr.Clear()
+	//stdscr.Clear()
 	stdscr.Keypad(true)
 	defer End()
-	stdscr.Print(msg)
-	stdscr.Refresh()
+	//stdscr.Print(msg)
+	//stdscr.Refresh()
 	tw.stdscr = stdscr
 	return nil
 }
 
-func (tw *TransWindow) Prompt(items []string) {
-	var active int
-	printmenu(tw.window, items, active)
+func (tw *TransWindow) Prompt(title string, items []string) string {
 
+	// Init the prompt
+	defer End()
+	var active int
+
+	// Clear the window
+	tw.window.Clear()
+	tw.window.Refresh()
+
+	// Clear the main screen
+
+	tw.stdscr.Clear()
+	tw.stdscr.Refresh()
+	tw.stdscr.Print(title)
+
+	// Draw the inital window
+	draw(tw.window, items, active)
+
+	// Event loop
 	for {
 		ch := tw.stdscr.GetChar()
 		switch Key(ch) {
 		case 'q':
-			return
+			//tw.stdscr.Clear()
+			return ""
 		case KEY_UP:
 			if active == 0 {
 				active = len(items) - 1
@@ -88,20 +104,25 @@ func (tw *TransWindow) Prompt(items []string) {
 			tw.stdscr.MovePrintf(tw.my-2, 0, "Choice #%d: %s selected",
 				active,
 				items[active])
-			tw.stdscr.ClearToEOL()
 			tw.stdscr.Refresh()
+			tw.stdscr.Clear()
+			return items[active]
 		default:
+			// Todo
 			tw.stdscr.MovePrintf(tw.my-2, 0, "Character pressed = %3d/%c",
 				ch, ch)
 			tw.stdscr.ClearToEOL()
 			tw.stdscr.Refresh()
 		}
-
-		printmenu(tw.window, items, active)
+		draw(tw.window, items, active)
 	}
 }
 
-func printmenu(w *Window, menu []string, active int) {
+func (tw *TransWindow) End() {
+	End()
+}
+
+func draw(w *Window, menu []string, active int) {
 	y, x := 2, 2
 	w.Box(0, 0)
 	for i, s := range menu {

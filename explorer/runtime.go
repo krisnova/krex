@@ -15,18 +15,35 @@
 package explorer
 
 import (
-	"fmt"
-
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 
 	// Import to initialize client auth plugins.
+	"fmt"
+
+	"github.com/kris-nova/krex/trans"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 )
 
 var (
 	k8sclient *kubernetes.Clientset
 	options   *RuntimeOptions
+	krexLogo  = `  _
+ | |
+ | | ___ __ _____  __
+ | |/ / '__/ _ \ \/ /
+ |   <| | |  __/>  <
+ |_|\_\_|  \___/_/\_\
+
+`
+
+	// transXY (aside from being the best variable name in the universe)
+	// is where we map the transport system used to navigate the terminal's
+	// X and Y buffer. We wrap ncurses.h and draw our own terminal buffer
+	// from scratch. This window needs to be handled like a delicate flower
+	// as if it does not exit cleanly we can skew the user's terminal buffer
+	// and cause really nasty side effects.
+	transXY *trans.TransWindow
 )
 
 type RuntimeOptions struct {
@@ -35,19 +52,13 @@ type RuntimeOptions struct {
 }
 
 func Init(opt *RuntimeOptions) error {
-
-	s := `  _
- | |
- | | ___ __ _____  __
- | |/ / '__/ _ \ \/ /
- |   <| | |  __/>  <
- |_|\_\_|  \___/_/\_\`
-
-	fmt.Println(s)
-	fmt.Println()
-	fmt.Println("Kubernetes Resource Explorer")
-	fmt.Println()
-
+	var err error
+	transXY, err = trans.GetNewWindow(trans.DefaultHeight, trans.DefaultWidth)
+	defer transXY.End()
+	if err != nil {
+		return fmt.Errorf("unable to initialize trans system: %v", err)
+	}
+	transXY.StartScreen(krexLogo)
 	config, err := clientcmd.BuildConfigFromFlags("", opt.KubeconfigPath)
 	if err != nil {
 		return err

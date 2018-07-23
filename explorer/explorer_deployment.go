@@ -28,9 +28,12 @@ func (n *DeploymentExplorer) List() error {
 }
 
 func (n *DeploymentExplorer) RunPrompt() (string, error) {
-	prompt := NewPromptFromMenuItems("Select deployment resources: ", n.Items)
-	_, selection, err := prompt.Run()
-	return selection, err
+	var strs []string
+	for _, item := range n.Items {
+		strs = append(strs, item.GetReadable())
+	}
+	selection := transXY.Prompt("Select Deployment resources", strs)
+	return selection, nil
 }
 
 func (n *DeploymentExplorer) Execute(selection string) error {

@@ -87,9 +87,12 @@ func getOwnerPods(pods *apiv1.PodList, owners map[string]bool, resourceKindToMat
 }
 
 func (n *PodsExplorer) RunPrompt() (string, error) {
-	prompt := NewPromptFromMenuItems("Select pod resources: ", n.Items)
-	_, selection, err := prompt.Run()
-	return selection, err
+	var strs []string
+	for _, item := range n.Items {
+		strs = append(strs, item.GetReadable())
+	}
+	selection := transXY.Prompt("Select Pod resource", strs)
+	return selection, nil
 }
 
 func (n *PodsExplorer) Execute(selection string) error {

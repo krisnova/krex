@@ -109,6 +109,11 @@ func (r *Replayer) Initial() []byte {
 	return r.proxy.Initial
 }
 
+// IgnoreHeader will not use h when matching requests.
+func (r *Replayer) IgnoreHeader(h string) {
+	r.proxy.IgnoreHeader(h)
+}
+
 // Close closes the replayer.
 func (r *Replayer) Close() error {
 	return r.proxy.Close()
@@ -120,3 +125,7 @@ func (r *Replayer) Close() error {
 func DebugHeaders() {
 	proxy.DebugHeaders = true
 }
+
+// Supported reports whether httpreplay is supported in the current version of Go.
+// For Go 1.8 and above, the answer is true.
+func Supported() bool { return true }
