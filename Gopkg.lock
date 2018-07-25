@@ -98,7 +98,7 @@
     "openstack/utils",
     "pagination"
   ]
-  revision = "9bb899a7c1d92abca2da4992cff2f284fdf62cce"
+  revision = "f1bae72a73954e0636d2de309b417bcfa4bd7de7"
 
 [[projects]]
   branch = "master"
@@ -213,7 +213,7 @@
     "http2/hpack",
     "idna"
   ]
-  revision = "a680a1efc54dd51c040b3b5ce4939ea3cf2ea0d1"
+  revision = "3673e40ba22529d22c3fd7c93e97b0ce50fa7bdd"
 
 [[projects]]
   branch = "master"
@@ -225,7 +225,7 @@
     "jws",
     "jwt"
   ]
-  revision = "ef147856a6ddbb60760db74283d2424e98c87bff"
+  revision = "3d292e4d0cdc3a0113e6d207bb137145ef1de42f"
 
 [[projects]]
   branch = "master"
@@ -234,7 +234,7 @@
     "unix",
     "windows"
   ]
-  revision = "ac767d655b305d4e9612f5f6e33120b9176c4ad4"
+  revision = "e072cadbbdc8dd3d3ffa82b8b4b9304c261d9311"
 
 [[projects]]
   name = "golang.org/x/text"
