@@ -1,7 +1,6 @@
-
 # Gopkg.toml example
 #
-# Refer to https://github.com/golang/dep/blob/master/docs/Gopkg.toml.md
+# Refer to https://golang.github.io/dep/docs/Gopkg.toml.html
 # for detailed Gopkg.toml documentation.
 #
 # required = ["github.com/user/thing/cmd/thing"]
@@ -17,22 +16,39 @@
 #   source = "github.com/myfork/project2"
 #
 # [[override]]
-#  name = "github.com/x/y"
-#  version = "2.4.0"
+#   name = "github.com/x/y"
+#   version = "2.4.0"
+#
+# [prune]
+#   non-go = false
+#   go-tests = true
+#   unused-packages = true
 
-required = [
-  "cloud.google.com/go/compute/metadata",
-  "github.com/Azure/go-autorest/autorest",
-  "github.com/Azure/go-autorest/autorest/adal",
-  "github.com/Azure/go-autorest/autorest/azure",
-  "github.com/gophercloud/gophercloud",
-  "github.com/gophercloud/gophercloud/openstack"
-]
 
 [[constraint]]
-  name = "github.com/manifoldco/promptui"
-  version = "0.3.0"
+  branch = "master"
+  name = "github.com/kubicorn/kubicorn"
+
+[[constraint]]
+  name = "github.com/rthornton128/goncurses"
+  version = "0.2.0"
 
 [[constraint]]
   name = "github.com/spf13/cobra"
   version = "0.0.3"
+
+[[constraint]]
+  branch = "master"
+  name = "k8s.io/api"
+
+[[constraint]]
+  name = "k8s.io/apimachinery"
+  version = "kubernetes-1.11.0"
+
+[[constraint]]
+  name = "k8s.io/client-go"
+  version = "kubernetes-1.11.0"
+
+[prune]
+  go-tests = true
+  unused-packages = true

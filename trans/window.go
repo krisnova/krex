@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	DefaultHeight = 50
-	DefaultWidth  = 200
+	DefaultHeight = 30
+	DefaultWidth  = 50
 )
 
 type TransWindow struct {
@@ -31,7 +31,7 @@ func GetNewWindow(height, width int) (*TransWindow, error) {
 	if err != nil {
 		return nil, err
 	}
-	my, mx := stdscr.MaxYX()
+	my, mx := stdscr.Maxyx()
 	y, x := 2, (mx/2)-(width/2)
 
 	win, _ := NewWindow(height, width, y, x)
@@ -39,7 +39,7 @@ func GetNewWindow(height, width int) (*TransWindow, error) {
 	return &TransWindow{
 		width:  width,
 		height: height,
-		window: win,
+		window: &win,
 		my:     my,
 		mx:     mx,
 	}, nil
@@ -58,7 +58,7 @@ func (tw *TransWindow) StartScreen(msg string) error {
 	defer End()
 	//stdscr.Print(msg)
 	//stdscr.Refresh()
-	tw.stdscr = stdscr
+	tw.stdscr = &stdscr
 	return nil
 }
 
@@ -69,14 +69,14 @@ func (tw *TransWindow) Prompt(title string, items []string) string {
 	var active int
 
 	// Clear the window
-	tw.window.Clear()
-	tw.window.Refresh()
+	//tw.window.Clear()
+	//tw.window.Refresh()
 
 	// Clear the main screen
 
 	tw.stdscr.Clear()
-	tw.stdscr.Refresh()
-	tw.stdscr.Print(title)
+	//tw.stdscr.Refresh()
+	//tw.stdscr.Print(title)
 
 	// Draw the inital window
 	draw(tw.window, items, active)
