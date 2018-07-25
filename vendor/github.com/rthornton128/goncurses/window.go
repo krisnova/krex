@@ -5,7 +5,7 @@
 package goncurses
 
 // #include <stdlib.h>
-// #include <ncurses.h>
+// #include <curses.h>
 // #include "goncurses.h"
 import "C"
 
@@ -17,6 +17,15 @@ import (
 
 type Window struct {
 	win *C.WINDOW
+}
+
+// NewWindow creates a window of size h(eight) and w(idth) at y, x
+func NewWindow(h, w, y, x int) (window *Window, err error) {
+	window = &Window{C.newwin(C.int(h), C.int(w), C.int(y), C.int(x))}
+	if window.win == nil {
+		err = errors.New("Failed to create a new window")
+	}
+	return
 }
 
 // AddChar prints a single character to the window. The character can be
@@ -33,7 +42,7 @@ func (w *Window) MoveAddChar(y, x int, ach Char) {
 
 // Turn off character attribute.
 func (w *Window) AttrOff(attr Char) (err error) {
-	if C.wattroff(w.win, C.int(attr)) == C.ERR {
+	if C.ncurses_wattroff(w.win, C.int(attr)) == C.ERR {
 		err = errors.New(fmt.Sprintf("Failed to unset attribute: %s",
 			attrList[C.int(attr)]))
 	}
@@ -42,7 +51,7 @@ func (w *Window) AttrOff(attr Char) (err error) {
 
 // Turn on character attribute
 func (w *Window) AttrOn(attr Char) (err error) {
-	if C.wattron(w.win, C.int(attr)) == C.ERR {
+	if C.ncurses_wattron(w.win, C.int(attr)) == C.ERR {
 		err = errors.New(fmt.Sprintf("Failed to set attribute: %s",
 			attrList[C.int(attr)]))
 	}
@@ -89,7 +98,12 @@ func (w *Window) Box(vch, hch Char) error {
 	return nil
 }
 
-// Clear the screen
+// Clears the screen and the underlying virtual screen. This forces the entire
+// screen to be rewritten from scratch. This will cause likely cause a
+// noticeable flicker because the screen is completely cleared before
+// redrawing it. This is probably not what you want. Instead, you should
+// probably use the Erase() function. It is the same as called Erase() followed
+// by a call to ClearOk().
 func (w *Window) Clear() error {
 	if C.wclear(w.win) == C.ERR {
 		return errors.New("Failed to clear screen")
@@ -122,23 +136,23 @@ func (w *Window) ClearToEOL() error {
 	return nil
 }
 
-// Color sets the forground/background color pair for the entire window
+// Color sets the foreground/background color pair for the entire window
 func (w *Window) Color(pair int16) {
-	C.wcolor_set(w.win, C.short(C.COLOR_PAIR(C.int(pair))), nil)
+	C.wcolor_set(w.win, C.short(ColorPair(pair)), nil)
 }
 
 // ColorOff turns the specified color pair off
 func (w *Window) ColorOff(pair int16) error {
-	if C.wattroff(w.win, C.COLOR_PAIR(C.int(pair))) == C.ERR {
+	if C.ncurses_wattroff(w.win, C.int(ColorPair(pair))) == C.ERR {
 		return errors.New("Failed to enable color pair")
 	}
 	return nil
 }
 
 // Normally color pairs are turned on via attron() in ncurses but this
-// implementation chose to make it seperate
+// implementation chose to make it separate
 func (w *Window) ColorOn(pair int16) error {
-	if C.wattron(w.win, C.COLOR_PAIR(C.int(pair))) == C.ERR {
+	if C.ncurses_wattron(w.win, C.int(ColorPair(pair))) == C.ERR {
 		return errors.New("Failed to enable color pair")
 	}
 	return nil
@@ -160,31 +174,30 @@ func (w *Window) Copy(src *Window, sy, sx, dtr, dtc, dbr, dbc int,
 	return nil
 }
 
-// DelChar
-func (w *Window) DelChar(coord ...int) error {
-	if len(coord) > 2 {
-		return errors.New(fmt.Sprintf("Invalid number of arguments, "+
-			"expected 2, got %d", len(coord)))
-	}
-	var err C.int
-	if len(coord) > 1 {
-		var x int
-		y := coord[0]
-		if len(coord) > 2 {
-			x = coord[1]
-		}
-		err = C.mvwdelch(w.win, C.int(y), C.int(x))
-	} else {
-		err = C.wdelch(w.win)
-	}
-	if err != C.OK {
+// DelChar deletes the character at the current cursor position, moving all
+// characters to the right of that position one space to the left and appends
+// a blank character at the end.
+func (w *Window) DelChar() error {
+	if err := C.wdelch(w.win); err != C.OK {
 		return errors.New("An error occurred when trying to delete " +
 			"character")
 	}
 	return nil
 }
 
-// Delete the window
+// MoveDelChar deletes the character at the given cursor coordinates, moving all
+// characters to the right of that position one space to the left and appends
+// a blank character at the end.
+func (w *Window) MoveDelChar(y, x int) error {
+	if err := C.mvwdelch(w.win, C.int(y), C.int(x)); err != C.OK {
+		return errors.New("An error occurred when trying to delete " +
+			"character")
+	}
+	return nil
+}
+
+// Delete the window. This function must be called to ensure memory is freed
+// to prevent memory leaks once you are done with the window.
 func (w *Window) Delete() error {
 	if C.delwin(w.win) == C.ERR {
 		return errors.New("Failed to delete window")
@@ -197,32 +210,39 @@ func (w *Window) Delete() error {
 // y, x.  These coordinates are relative to the original window thereby
 // confining the derived window to the area of original window. See the
 // SubWindow function for additional notes.
-func (w *Window) Derived(height, width, y, x int) Window {
-	return Window{C.derwin(w.win, C.int(height), C.int(width), C.int(y),
+func (w *Window) Derived(height, width, y, x int) *Window {
+	return &Window{C.derwin(w.win, C.int(height), C.int(width), C.int(y),
 		C.int(x))}
 }
 
 // Duplicate the window, creating an exact copy.
-func (w *Window) Duplicate() Window {
-	return Window{C.dupwin(w.win)}
+func (w *Window) Duplicate() *Window {
+	return &Window{C.dupwin(w.win)}
 }
 
-// Test whether the given mouse coordinates are within the window or not
+// Test whether the given coordinates are within the window or not
 func (w *Window) Enclose(y, x int) bool {
 	return bool(C.wenclose(w.win, C.int(y), C.int(x)))
 }
 
-// Erase the contents of the window, effectively clearing it
+// Erase the contents of the window, clearing it. This function allows the
+// underlying structures to be updated efficiently and thereby provide smooth
+// updates to the terminal when frequently clearing and re-writing the window
+// or screen.
 func (w *Window) Erase() {
 	C.werase(w.win)
 }
 
 // GetChar retrieves a character from standard input stream and returns it.
-// In the event of an error or if the input timeout has expired (ie. if
+// In the event of an error or if the input timeout has expired (i.e. if
 // Timeout() has been set to zero or a positive value and no characters have
 // been received) the value returned will be zero (0)
 func (w *Window) GetChar() Key {
-	return Key(C.wgetch(w.win))
+	ch := C.wgetch(w.win)
+	if ch == C.ERR {
+		ch = 0
+	}
+	return Key(ch)
 }
 
 // MoveGetChar moves the cursor to the given position and gets a character
@@ -241,11 +261,9 @@ func (w *Window) GetString(n int) (string, error) {
 	return C.GoString(&cstr[0]), nil
 }
 
-// Getyx returns the current cursor location in the Window. Note that it uses
-// ncurses idiom of returning y then x.
-func (w *Window) Getyx() (int, int) {
-	// In some cases, getxy() and family are macros which don't play well with
-	// cgo
+// CursorYX returns the current cursor location in the Window. Note that it
+// uses ncurses idiom of returning y then x.
+func (w *Window) CursorYX() (int, int) {
 	var cy, cx C.int
 	C.ncurses_getyx(w.win, &cy, &cx)
 	return int(cy), int(cx)
@@ -289,13 +307,15 @@ func (w *Window) Keypad(keypad bool) error {
 	return nil
 }
 
+// LineTouched returns true if the line has been touched; returns false
+// otherwise
 func (w *Window) LineTouched(line int) bool {
 	return bool(C.is_linetouched(w.win, C.int(line)))
 }
 
 // Returns the maximum size of the Window. Note that it uses ncurses idiom
 // of returning y then x.
-func (w *Window) Maxyx() (int, int) {
+func (w *Window) MaxYX() (int, int) {
 	var cy, cx C.int
 	C.ncurses_getmaxyx(w.win, &cy, &cx)
 	return int(cy), int(cx)
@@ -313,9 +333,12 @@ func (w *Window) MoveWindow(y, x int) {
 	return
 }
 
-// NoutRefresh flags the window for redrawing. In order to actually perform
-// the changes, Update() must be called. This function when coupled with
-// Update() provides a speed increase over using Refresh() on each window.
+// NoutRefresh, or No Output Refresh, flags the window for redrawing but does
+// not output the changes to the terminal (screen). Essentially, the output is
+// buffered and a call to Update() flushes the buffer to the terminal. This
+// function provides a speed increase over calling Refresh() when multiple
+// windows are involved because only the final output is
+// transmitted to the terminal.
 func (w *Window) NoutRefresh() {
 	C.wnoutrefresh(w.win)
 	return
@@ -340,8 +363,14 @@ func (w *Window) Overwrite(src *Window) error {
 	return nil
 }
 
+// Parent returns a pointer to a Sub-window's parent, or nil if the window
+// has no parent
 func (w *Window) Parent() *Window {
-	return &Window{C.ncurses_wgetparent(w.win)}
+	p := C.ncurses_wgetparent(w.win)
+	if p == nil {
+		return nil
+	}
+	return &Window{p}
 }
 
 // Print a string to the given window. See the fmt package in the standard
@@ -353,7 +382,7 @@ func (w *Window) Print(args ...interface{}) {
 	w.Printf("%s", fmt.Sprint(args...))
 }
 
-// Printf functions the same as the stardard library's fmt package. See Print
+// Printf functions the same as the standard library's fmt package. See Print
 // for more details.
 func (w *Window) Printf(format string, args ...interface{}) {
 	cstr := C.CString(fmt.Sprintf(format, args...))
@@ -362,7 +391,7 @@ func (w *Window) Printf(format string, args ...interface{}) {
 	C.waddstr(w.win, cstr)
 }
 
-// Println behaves the s as Println in the stanard library's fmt package.
+// Println behaves the same as the standard library's fmt package.
 // See Print for more information.
 func (w *Window) Println(args ...interface{}) {
 	w.Printf("%s", fmt.Sprintln(args...))
@@ -416,8 +445,8 @@ func (w *Window) ScrollOk(ok bool) {
 // made to one window are reflected in the other. It is necessary to call
 // Touch() on this window prior to calling Refresh in order for it to be
 // displayed.
-func (w *Window) Sub(height, width, y, x int) Window {
-	return Window{C.subwin(w.win, C.int(height), C.int(width), C.int(y),
+func (w *Window) Sub(height, width, y, x int) *Window {
+	return &Window{C.subwin(w.win, C.int(height), C.int(width), C.int(y),
 		C.int(x))}
 }
 
@@ -456,7 +485,7 @@ func (w *Window) Sync(sync int) {
 
 // Timeout sets the window to blocking or non-blocking read mode. Calls to
 // GetCh will behave in the following manor depending on the value of delay:
-// <= -1 - blocking mode is set (blocks indefinately)
+// <= -1 - blocking mode is set (blocks indefinitely)
 // ==  0 - non-blocking; returns zero (0)
 // >=  1 - blocks for delay in milliseconds; returns zero (0)
 func (w *Window) Timeout(delay int) {
@@ -492,8 +521,16 @@ func (w *Window) UnTouch() {
 	C.ncurses_untouchwin(w.win)
 }
 
-// VLine draws a verticle line starting at y, x and ending at height using
+// VLine draws a vertical line starting at y, x and ending at height using
 // the specified character
-func (w *Window) VLine(y, x, ch Char, wid int) {
+func (w *Window) VLine(y, x int, ch Char, wid int) {
 	C.mvwvline(w.win, C.int(y), C.int(x), C.chtype(ch), C.int(wid))
+}
+
+// YX returns the current coordinates of the Window. Note that it uses
+// ncurses idiom of returning y then x.
+func (w *Window) YX() (int, int) {
+	var y, x C.int
+	C.ncurses_getbegyx(w.win, &y, &x)
+	return int(y), int(x)
 }

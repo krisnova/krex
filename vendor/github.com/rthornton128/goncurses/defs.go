@@ -4,7 +4,8 @@
 
 package goncurses
 
-// #include <ncurses.h>
+// #cgo !darwin,!openbsd,!windows pkg-config: ncurses
+// #include <curses.h>
 import "C"
 
 // Synconize options for Sync() function
@@ -15,50 +16,7 @@ const (
 	SYNC_UP     // Sync change in all child windows
 )
 
-// Definitions for printed characters not found on most keyboards. Ideally, 
-// these would not be hard-coded as they are potentially different on
-// different systems. However, some ncurses implementations seem to be
-// heavily reliant on macros which prevent these definitions from being
-// handled by cgo properly. If they don't work for you, you won't be able
-// to use them until either a) the Go team works out a way to overcome this
-// limitation in godefs/cgo or b) an alternative method is found. Work is
-// being done to find a solution from the ncurses source code.
-type Char int
-
-const (
-	ACS_DEGREE Char = iota + 4194406
-	ACS_PLMINUS
-	ACS_BOARD
-	ACS_LANTERN
-	ACS_LRCORNER
-	ACS_URCORNER
-	ACS_LLCORNER
-	ACS_ULCORNER
-	ACS_PLUS
-	ACS_S1
-	ACS_S3
-	ACS_HLINE
-	ACS_S7
-	ACS_S9
-	ACS_LTEE
-	ACS_RTEE
-	ACS_BTEE
-	ACS_TTEE
-	ACS_VLINE
-	ACS_LEQUAL
-	ACS_GEQUAL
-	ACS_PI
-	ACS_NEQUAL
-	ACS_STERLING
-	ACS_BULLET
-	ACS_LARROW  = 4194347
-	ACS_RARROW  = 4194348
-	ACS_DARROW  = 4194349
-	ACS_UARROW  = 4194350
-	ACS_BLOCK   = 4194352
-	ACS_DIAMOND = 4194400
-	ACS_CKBOARD = 4194401
-)
+type Char C.chtype
 
 // Text attributes
 const (
@@ -76,18 +34,59 @@ const (
 )
 
 var attrList = map[C.int]string{
-	C.A_NORMAL:     "normal",
-	C.A_STANDOUT:   "standout",
-	C.A_UNDERLINE:  "underline",
-	C.A_REVERSE:    "reverse",
-	C.A_BLINK:      "blink",
-	C.A_DIM:        "dim",
+	C.A_NORMAL:    "normal",
+	C.A_STANDOUT:  "standout",
+	C.A_UNDERLINE: "underline",
+	C.A_REVERSE:   "reverse",
+	C.A_BLINK:     "blink",
+	//C.A_DIM:        "dim", TODO: pdcurses only, distinct in ncurses
 	C.A_BOLD:       "bold",
 	C.A_PROTECT:    "protect",
 	C.A_INVIS:      "invis",
 	C.A_ALTCHARSET: "altcharset",
 	C.A_CHARTEXT:   "chartext",
 }
+
+// Definitions for printed characters not found on most keyboards.
+const (
+	/* VT100 symbols */
+	ACS_ULCORNER Char = C.A_ALTCHARSET + 'l'
+	ACS_LLCORNER      = C.A_ALTCHARSET + 'm'
+	ACS_URCORNER      = C.A_ALTCHARSET + 'k'
+	ACS_LRCORNER      = C.A_ALTCHARSET + 'j'
+	ACS_LTEE          = C.A_ALTCHARSET + 't'
+	ACS_RTEE          = C.A_ALTCHARSET + 'u'
+	ACS_BTEE          = C.A_ALTCHARSET + 'v'
+	ACS_TTEE          = C.A_ALTCHARSET + 'w'
+	ACS_HLINE         = C.A_ALTCHARSET + 'q'
+	ACS_VLINE         = C.A_ALTCHARSET + 'x'
+	ACS_PLUS          = C.A_ALTCHARSET + 'n'
+	ACS_S1            = C.A_ALTCHARSET + 'o'
+	ACS_S9            = C.A_ALTCHARSET + 's'
+	ACS_DIAMOND       = C.A_ALTCHARSET + '`'
+	ACS_CKBOARD       = C.A_ALTCHARSET + 'a'
+	ACS_DEGREE        = C.A_ALTCHARSET + 'f'
+	ACS_PLMINUS       = C.A_ALTCHARSET + 'g'
+	ACS_BULLET        = C.A_ALTCHARSET + '~'
+
+	/* Teletype 5410v1 symbols */
+	ACS_LARROW  = C.A_ALTCHARSET + ','
+	ACS_RARROW  = C.A_ALTCHARSET + '+'
+	ACS_DARROW  = C.A_ALTCHARSET + '.'
+	ACS_UARROW  = C.A_ALTCHARSET + '-'
+	ACS_BOARD   = C.A_ALTCHARSET + 'h'
+	ACS_LANTERN = C.A_ALTCHARSET + 'i'
+	ACS_BLOCK   = C.A_ALTCHARSET + '0'
+
+	/* Undocumented, not well supported */
+	ACS_S3       = C.A_ALTCHARSET + 'p'
+	ACS_S7       = C.A_ALTCHARSET + 'r'
+	ACS_LEQUAL   = C.A_ALTCHARSET + 'y'
+	ACS_GEQUAL   = C.A_ALTCHARSET + 'z'
+	ACS_PI       = C.A_ALTCHARSET + '{'
+	ACS_NEQUAL   = C.A_ALTCHARSET + '|'
+	ACS_STERLING = C.A_ALTCHARSET + '}'
+)
 
 // Colors available to ncurses. Combine these with the dim/bold attributes
 // for bright/dark versions of each color. These colors can be used for
@@ -123,7 +122,7 @@ const (
 	KEY_F7            = C.KEY_F0 + 7    // F7 key
 	KEY_F8            = C.KEY_F0 + 8    // F8 key
 	KEY_F9            = C.KEY_F0 + 9    // F9 key
-	KEY_F10           = C.KEY_F0 + 10   // F10 key 
+	KEY_F10           = C.KEY_F0 + 10   // F10 key
 	KEY_F11           = C.KEY_F0 + 11   // F11 key
 	KEY_F12           = C.KEY_F0 + 12   // F12 key
 	KEY_DL            = C.KEY_DL        // delete-line key
@@ -131,84 +130,84 @@ const (
 	KEY_DC            = C.KEY_DC        // delete-character key
 	KEY_IC            = C.KEY_IC        // insert-character key
 	KEY_EIC           = C.KEY_EIC       // sent by rmir or smir in insert mode
-	KEY_CLEAR         = C.KEY_CLEAR     // clear-screen or erase key 
-	KEY_EOS           = C.KEY_EOS       // clear-to-end-of-screen key 
-	KEY_EOL           = C.KEY_EOL       // clear-to-end-of-line key 
-	KEY_SF            = C.KEY_SF        // scroll-forward key 
-	KEY_SR            = C.KEY_SR        // scroll-backward key 
+	KEY_CLEAR         = C.KEY_CLEAR     // clear-screen or erase key
+	KEY_EOS           = C.KEY_EOS       // clear-to-end-of-screen key
+	KEY_EOL           = C.KEY_EOL       // clear-to-end-of-line key
+	KEY_SF            = C.KEY_SF        // scroll-forward key
+	KEY_SR            = C.KEY_SR        // scroll-backward key
 	KEY_PAGEDOWN      = C.KEY_NPAGE     // page-down key (next-page)
 	KEY_PAGEUP        = C.KEY_PPAGE     // page-up key (prev-page)
-	KEY_STAB          = C.KEY_STAB      // set-tab key 
-	KEY_CTAB          = C.KEY_CTAB      // clear-tab key 
-	KEY_CATAB         = C.KEY_CATAB     // clear-all-tabs key 
+	KEY_STAB          = C.KEY_STAB      // set-tab key
+	KEY_CTAB          = C.KEY_CTAB      // clear-tab key
+	KEY_CATAB         = C.KEY_CATAB     // clear-all-tabs key
 	KEY_ENTER         = C.KEY_ENTER     // enter/send key
-	KEY_PRINT         = C.KEY_PRINT     // print key 
-	KEY_LL            = C.KEY_LL        // lower-left key (home down) 
-	KEY_A1            = C.KEY_A1        // upper left of keypad 
-	KEY_A3            = C.KEY_A3        // upper right of keypad 
-	KEY_B2            = C.KEY_B2        // center of keypad 
-	KEY_C1            = C.KEY_C1        // lower left of keypad 
-	KEY_C3            = C.KEY_C3        // lower right of keypad 
-	KEY_BTAB          = C.KEY_BTAB      // back-tab key 
-	KEY_BEG           = C.KEY_BEG       // begin key 
-	KEY_CANCEL        = C.KEY_CANCEL    // cancel key 
-	KEY_CLOSE         = C.KEY_CLOSE     // close key 
-	KEY_COMMAND       = C.KEY_COMMAND   // command key 
-	KEY_COPY          = C.KEY_COPY      // copy key 
-	KEY_CREATE        = C.KEY_CREATE    // create key 
-	KEY_END           = C.KEY_END       // end key 
-	KEY_EXIT          = C.KEY_EXIT      // exit key 
-	KEY_FIND          = C.KEY_FIND      // find key 
-	KEY_HELP          = C.KEY_HELP      // help key 
-	KEY_MARK          = C.KEY_MARK      // mark key 
-	KEY_MESSAGE       = C.KEY_MESSAGE   // message key 
-	KEY_MOVE          = C.KEY_MOVE      // move key 
-	KEY_NEXT          = C.KEY_NEXT      // next key 
-	KEY_OPEN          = C.KEY_OPEN      // open key 
-	KEY_OPTIONS       = C.KEY_OPTIONS   // options key 
-	KEY_PREVIOUS      = C.KEY_PREVIOUS  // previous key 
-	KEY_REDO          = C.KEY_REDO      // redo key 
-	KEY_REFERENCE     = C.KEY_REFERENCE // reference key 
-	KEY_REFRESH       = C.KEY_REFRESH   // refresh key 
-	KEY_REPLACE       = C.KEY_REPLACE   // replace key 
-	KEY_RESTART       = C.KEY_RESTART   // restart key 
+	KEY_PRINT         = C.KEY_PRINT     // print key
+	KEY_LL            = C.KEY_LL        // lower-left key (home down)
+	KEY_A1            = C.KEY_A1        // upper left of keypad
+	KEY_A3            = C.KEY_A3        // upper right of keypad
+	KEY_B2            = C.KEY_B2        // center of keypad
+	KEY_C1            = C.KEY_C1        // lower left of keypad
+	KEY_C3            = C.KEY_C3        // lower right of keypad
+	KEY_BTAB          = C.KEY_BTAB      // back-tab key
+	KEY_BEG           = C.KEY_BEG       // begin key
+	KEY_CANCEL        = C.KEY_CANCEL    // cancel key
+	KEY_CLOSE         = C.KEY_CLOSE     // close key
+	KEY_COMMAND       = C.KEY_COMMAND   // command key
+	KEY_COPY          = C.KEY_COPY      // copy key
+	KEY_CREATE        = C.KEY_CREATE    // create key
+	KEY_END           = C.KEY_END       // end key
+	KEY_EXIT          = C.KEY_EXIT      // exit key
+	KEY_FIND          = C.KEY_FIND      // find key
+	KEY_HELP          = C.KEY_HELP      // help key
+	KEY_MARK          = C.KEY_MARK      // mark key
+	KEY_MESSAGE       = C.KEY_MESSAGE   // message key
+	KEY_MOVE          = C.KEY_MOVE      // move key
+	KEY_NEXT          = C.KEY_NEXT      // next key
+	KEY_OPEN          = C.KEY_OPEN      // open key
+	KEY_OPTIONS       = C.KEY_OPTIONS   // options key
+	KEY_PREVIOUS      = C.KEY_PREVIOUS  // previous key
+	KEY_REDO          = C.KEY_REDO      // redo key
+	KEY_REFERENCE     = C.KEY_REFERENCE // reference key
+	KEY_REFRESH       = C.KEY_REFRESH   // refresh key
+	KEY_REPLACE       = C.KEY_REPLACE   // replace key
+	KEY_RESTART       = C.KEY_RESTART   // restart key
 	KEY_RESUME        = C.KEY_RESUME    // resume key
-	KEY_SAVE          = C.KEY_SAVE      // save key 
-	KEY_SBEG          = C.KEY_SBEG      // shifted begin key 
-	KEY_SCANCEL       = C.KEY_SCANCEL   // shifted cancel key 
-	KEY_SCOMMAND      = C.KEY_SCOMMAND  // shifted command key 
-	KEY_SCOPY         = C.KEY_SCOPY     // shifted copy key 
-	KEY_SCREATE       = C.KEY_SCREATE   // shifted create key 
-	KEY_SDC           = C.KEY_SDC       // shifted delete-character key 
-	KEY_SDL           = C.KEY_SDL       // shifted delete-line key 
-	KEY_SELECT        = C.KEY_SELECT    // select key 
-	KEY_SEND          = C.KEY_SEND      // shifted end key 
-	KEY_SEOL          = C.KEY_SEOL      // shifted clear-to-end-of-line key 
-	KEY_SEXIT         = C.KEY_SEXIT     // shifted exit key 
-	KEY_SFIND         = C.KEY_SFIND     // shifted find key 
-	KEY_SHELP         = C.KEY_SHELP     // shifted help key 
-	KEY_SHOME         = C.KEY_SHOME     // shifted home key 
-	KEY_SIC           = C.KEY_SIC       // shifted insert-character key 
-	KEY_SLEFT         = C.KEY_SLEFT     // shifted left-arrow key 
-	KEY_SMESSAGE      = C.KEY_SMESSAGE  // shifted message key 
-	KEY_SMOVE         = C.KEY_SMOVE     // shifted move key 
-	KEY_SNEXT         = C.KEY_SNEXT     // shifted next key 
-	KEY_SOPTIONS      = C.KEY_SOPTIONS  // shifted options key 
-	KEY_SPREVIOUS     = C.KEY_SPREVIOUS // shifted previous key 
-	KEY_SPRINT        = C.KEY_SPRINT    // shifted print key 
-	KEY_SREDO         = C.KEY_SREDO     // shifted redo key 
-	KEY_SREPLACE      = C.KEY_SREPLACE  // shifted replace key 
-	KEY_SRIGHT        = C.KEY_SRIGHT    // shifted right-arrow key 
-	KEY_SRSUME        = C.KEY_SRSUME    // shifted resume key 
-	KEY_SSAVE         = C.KEY_SSAVE     // shifted save key 
-	KEY_SSUSPEND      = C.KEY_SSUSPEND  // shifted suspend key 
-	KEY_SUNDO         = C.KEY_SUNDO     // shifted undo key 
-	KEY_SUSPEND       = C.KEY_SUSPEND   // suspend key 
-	KEY_UNDO          = C.KEY_UNDO      // undo key 
+	KEY_SAVE          = C.KEY_SAVE      // save key
+	KEY_SBEG          = C.KEY_SBEG      // shifted begin key
+	KEY_SCANCEL       = C.KEY_SCANCEL   // shifted cancel key
+	KEY_SCOMMAND      = C.KEY_SCOMMAND  // shifted command key
+	KEY_SCOPY         = C.KEY_SCOPY     // shifted copy key
+	KEY_SCREATE       = C.KEY_SCREATE   // shifted create key
+	KEY_SDC           = C.KEY_SDC       // shifted delete-character key
+	KEY_SDL           = C.KEY_SDL       // shifted delete-line key
+	KEY_SELECT        = C.KEY_SELECT    // select key
+	KEY_SEND          = C.KEY_SEND      // shifted end key
+	KEY_SEOL          = C.KEY_SEOL      // shifted clear-to-end-of-line key
+	KEY_SEXIT         = C.KEY_SEXIT     // shifted exit key
+	KEY_SFIND         = C.KEY_SFIND     // shifted find key
+	KEY_SHELP         = C.KEY_SHELP     // shifted help key
+	KEY_SHOME         = C.KEY_SHOME     // shifted home key
+	KEY_SIC           = C.KEY_SIC       // shifted insert-character key
+	KEY_SLEFT         = C.KEY_SLEFT     // shifted left-arrow key
+	KEY_SMESSAGE      = C.KEY_SMESSAGE  // shifted message key
+	KEY_SMOVE         = C.KEY_SMOVE     // shifted move key
+	KEY_SNEXT         = C.KEY_SNEXT     // shifted next key
+	KEY_SOPTIONS      = C.KEY_SOPTIONS  // shifted options key
+	KEY_SPREVIOUS     = C.KEY_SPREVIOUS // shifted previous key
+	KEY_SPRINT        = C.KEY_SPRINT    // shifted print key
+	KEY_SREDO         = C.KEY_SREDO     // shifted redo key
+	KEY_SREPLACE      = C.KEY_SREPLACE  // shifted replace key
+	KEY_SRIGHT        = C.KEY_SRIGHT    // shifted right-arrow key
+	KEY_SRSUME        = C.KEY_SRSUME    // shifted resume key
+	KEY_SSAVE         = C.KEY_SSAVE     // shifted save key
+	KEY_SSUSPEND      = C.KEY_SSUSPEND  // shifted suspend key
+	KEY_SUNDO         = C.KEY_SUNDO     // shifted undo key
+	KEY_SUSPEND       = C.KEY_SUSPEND   // suspend key
+	KEY_UNDO          = C.KEY_UNDO      // undo key
 	KEY_MOUSE         = C.KEY_MOUSE     // any mouse event
-	KEY_RESIZE        = C.KEY_RESIZE    // Terminal resize event 
-	KEY_EVENT         = C.KEY_EVENT     // We were interrupted by an event 
-	KEY_MAX           = C.KEY_MAX       // Maximum key value is KEY_EVENT (0633)
+	KEY_RESIZE        = C.KEY_RESIZE    // Terminal resize event
+	//KEY_EVENT         = C.KEY_EVENT     // We were interrupted by an event
+	KEY_MAX = C.KEY_MAX // Maximum key value is KEY_EVENT (0633)
 )
 
 var keyList = map[Key]string{

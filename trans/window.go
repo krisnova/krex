@@ -9,8 +9,6 @@ package trans
  */
 
 import (
-	"fmt"
-
 	. "github.com/rthornton128/goncurses"
 )
 
@@ -37,12 +35,12 @@ func GetNewWindow(height, width int) (*TransWindow, error) {
 	if err != nil {
 		return nil, err
 	}
-	my, mx := stdscr.Maxyx()
+	my, mx := stdscr.MaxYX()
 
 	// Offset of the inner window
 	y, x := 2, (mx/2)-(width/2)
 
-	fmt.Println(height, width, y, x)
+	//fmt.Println(height, width, y, x)
 
 	// 30 200 2 25
 	win, _ := NewWindow(height, width, y, x)
@@ -61,8 +59,8 @@ func GetNewWindow(height, width int) (*TransWindow, error) {
 	return &TransWindow{
 		width:  width,
 		height: height,
-		window: &win,
-		stdscr: &stdscr,
+		window: win,
+		stdscr: stdscr,
 		my:     my,
 		mx:     mx,
 	}, nil
@@ -136,7 +134,7 @@ func (tw *TransWindow) End() {
 func draw(w *Window, menu []string, active int) {
 	y, x := 2, 2
 	w.Box(0, 0)
-	w.Background()
+	//w.Background()
 	for i, s := range menu {
 		if i == active {
 			w.AttrOn(A_REVERSE)

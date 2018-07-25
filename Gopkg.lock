@@ -179,10 +179,10 @@
   version = "v2.0.1"
 
 [[projects]]
+  branch = "master"
   name = "github.com/rthornton128/goncurses"
   packages = ["."]
-  revision = "415327db62e7f4815861a9637d3e8371cdea69bc"
-  version = "0.2"
+  revision = "52220cf7cbaf747e5285d203b8ecf7cacc025b24"
 
 [[projects]]
   name = "github.com/spf13/cobra"
@@ -439,6 +439,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "61b989062cdebdcce733814c709a1042c60a1405a1c88716d5bc1b62f2a968f2"
+  inputs-digest = "9d87432a38d3197a193703532ddff92240e58e4175657ff84800714b11357b08"
   solver-name = "gps-cdcl"
   solver-version = 1
