@@ -4,9 +4,10 @@
 
 package goncurses
 
-// #cgo pkg-config: panel
+// #cgo !darwin,!openbsd,!windows pkg-config: panel
+// #cgo darwin openbsd LDFLAGS: -lpanel
 // #include <panel.h>
-// #include <ncurses.h>
+// #include <curses.h>
 import "C"
 
 import "errors"
@@ -15,15 +16,15 @@ type Panel struct {
 	pan *C.PANEL
 }
 
-// Panel creates a new panel derived from the window, adding it to the 
+// Panel creates a new panel derived from the window, adding it to the
 // panel stack. The pointer to the original window can still be used to
-// excute most window functions with the exception of Refresh(). Always
+// execute most window functions with the exception of Refresh(). Always
 // use panel's Refresh() function.
 func NewPanel(w *Window) *Panel {
 	return &Panel{C.new_panel(w.win)}
 }
 
-// UpdatePanels refreshes the panel stack. It must be called prior to 
+// UpdatePanels refreshes the panel stack. It must be called prior to
 // using ncurses's DoUpdate()
 func UpdatePanels() {
 	C.update_panels()
@@ -50,7 +51,7 @@ func (p *Panel) Bottom() error {
 	return nil
 }
 
-// Delete panel, removing from the stack. 
+// Delete panel, removing from the stack.
 func (p *Panel) Delete() error {
 	if C.del_panel(p.pan) == C.ERR {
 		return errors.New("Failed to delete panel")

@@ -2,10 +2,13 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// +build !windows
+
 package goncurses
 
 /*
-#cgo pkg-config: menu
+#cgo !darwin,!openbsd pkg-config: menu
+#cgo darwin openbsd LDFLAGS: -lmenu
 #include <menu.h>
 #include <stdlib.h>
 
@@ -76,7 +79,7 @@ func (m *Menu) Current(mi *MenuItem) *MenuItem {
 }
 
 // Driver controls how the menu is activated. Action usually corresponds
-// to the string return by the Key() function in goncurses.
+// to the string returned by the Key() function in goncurses.
 func (m *Menu) Driver(daction int) error {
 	err := C.menu_driver(m.menu, C.int(daction))
 	return ncursesError(syscall.Errno(err))
@@ -102,7 +105,7 @@ func (m *Menu) Free() error {
 }
 
 // Grey sets the attributes of non-selectable items in the menu
-func (m *Menu) Grey(ch int) {
+func (m *Menu) Grey(ch Char) {
 	C.set_menu_grey(m.menu, C.chtype(ch))
 }
 
@@ -166,15 +169,15 @@ func (m *Menu) Scale() (int, int, error) {
 	return int(y), int(x), ncursesError(syscall.Errno(err))
 }
 
-// SetBackground set the attributes of the un-highlighted items in the 
+// SetBackground set the attributes of the un-highlighted items in the
 // menu
-func (m *Menu) SetBackground(ch int) error {
+func (m *Menu) SetBackground(ch Char) error {
 	err := C.set_menu_back(m.menu, C.chtype(ch))
 	return ncursesError(syscall.Errno(err))
 }
 
 // SetForeground sets the attributes of the highlighted items in the menu
-func (m *Menu) SetForeground(ch int) error {
+func (m *Menu) SetForeground(ch Char) error {
 	err := C.set_menu_fore(m.menu, C.chtype(ch))
 	return ncursesError(syscall.Errno(err))
 }
@@ -192,7 +195,7 @@ func (m *Menu) SetItems(items []*MenuItem) error {
 }
 
 // SetPad sets the padding character for menu items.
-func (m *Menu) SetPad(ch int) error {
+func (m *Menu) SetPad(ch Char) error {
 	err := C.set_menu_pad(m.menu, C.int(ch))
 	return ncursesError(syscall.Errno(err))
 }
@@ -205,11 +208,11 @@ func (m *Menu) SetPattern(pattern string) error {
 	return ncursesError(syscall.Errno(err))
 }
 
-// SetSpacing of the the menu's items. 'desc' is the space between the
-// item and it's description andmay not be larger than TAB_SIZE. 'row' 
-// is the number of rows separating each item and may not be larger than 
-// three. 'col' is the spacing between each column of items in 
-// multi-column mode. Use values of 0 or 1 to reset spacing to default, 
+// SetSpacing of the menu's items. 'desc' is the space between the
+// item and it's description and may not be larger than TAB_SIZE. 'row'
+// is the number of rows separating each item and may not be larger than
+// three. 'col' is the spacing between each column of items in
+// multi-column mode. Use values of 0 or 1 to reset spacing to default,
 // which is one
 func (m *Menu) SetSpacing(desc, row, col int) error {
 	err := C.set_menu_spacing(m.menu, C.int(desc), C.int(row),
@@ -260,7 +263,7 @@ func NewItem(name, desc string) (*MenuItem, error) {
 	return &MenuItem{item}, ncursesError(err)
 }
 
-// Description returns the second value passed to NewItem 
+// Description returns the second value passed to NewItem
 func (mi *MenuItem) Description() string {
 	return C.GoString(C.item_description(mi.item))
 }

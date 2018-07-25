@@ -6,7 +6,7 @@
 package goncurses
 
 // #include <stdlib.h>
-// #include <ncurses.h>
+// #include <curses.h>
 import "C"
 
 import (
@@ -105,10 +105,11 @@ func SlkColor(cp int16) error {
 	return nil
 }
 
+/* TODO: Not available in PDCurses
 // SlkAttribute returns the currently set attributes
 func SlkAttribute() Char {
 	return Char(C.slk_attr())
-}
+}*/
 
 // SlkSetAttribute sets the OR'd attributes to use
 func SlkSetAttribute(attr Char) error {
@@ -126,7 +127,7 @@ func SlkAttributeOn(attr Char) error {
 	return nil
 }
 
-// SlkAttributeOff turns off the given OR'd attributes withoiut turning any on
+// SlkAttributeOff turns off the given OR'd attributes without turning any on
 func SlkAttributeOff(attr Char) error {
 	if C.slk_attroff(C.chtype(attr)) == C.ERR {
 		return errors.New("Soft-keys or terminal not initialized.")

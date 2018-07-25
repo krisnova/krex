@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	DefaultHeight = 50
-	DefaultWidth  = 200
+	DefaultHeight = 30
+	DefaultWidth  = 50
 )
 
 type TransWindow struct {
@@ -22,7 +22,11 @@ type TransWindow struct {
 	width  int
 	my     int
 	mx     int
+
+	// The menu window
 	window *Window
+
+	// The full terminal
 	stdscr *Window
 }
 
@@ -32,33 +36,38 @@ func GetNewWindow(height, width int) (*TransWindow, error) {
 		return nil, err
 	}
 	my, mx := stdscr.MaxYX()
+
+	// Offset of the inner window
 	y, x := 2, (mx/2)-(width/2)
 
+	//fmt.Println(height, width, y, x)
+
+	// 30 200 2 25
 	win, _ := NewWindow(height, width, y, x)
 	win.Keypad(true)
+
+	Raw(true)
+	Echo(false)
+	Cursor(0)
+
+	//stdscr.Clear()
+	stdscr.Keypad(true)
+	defer End()
+	//stdscr.Print(msg)
+	//stdscr.Refresh()
+
 	return &TransWindow{
 		width:  width,
 		height: height,
 		window: win,
+		stdscr: stdscr,
 		my:     my,
 		mx:     mx,
 	}, nil
 }
 
 func (tw *TransWindow) StartScreen(msg string) error {
-	stdscr, err := Init()
-	if err != nil {
-		return err
-	}
-	Raw(true)
-	Echo(false)
-	Cursor(0)
-	//stdscr.Clear()
-	stdscr.Keypad(true)
-	defer End()
-	//stdscr.Print(msg)
-	//stdscr.Refresh()
-	tw.stdscr = stdscr
+
 	return nil
 }
 
@@ -69,12 +78,12 @@ func (tw *TransWindow) Prompt(title string, items []string) string {
 	var active int
 
 	// Clear the window
-	tw.window.Clear()
+	//tw.window.Clear()
 	tw.window.Refresh()
 
 	// Clear the main screen
 
-	tw.stdscr.Clear()
+	//tw.stdscr.Clear()
 	tw.stdscr.Refresh()
 	tw.stdscr.Print(title)
 
@@ -101,7 +110,7 @@ func (tw *TransWindow) Prompt(title string, items []string) string {
 				active += 1
 			}
 		case KEY_RETURN, KEY_ENTER, Key('\r'):
-			tw.stdscr.MovePrintf(tw.my-2, 0, "Choice #%d: %s selected",
+			tw.stdscr.MovePrint(tw.my-2, 0, "Choice #%d: %s selected",
 				active,
 				items[active])
 			tw.stdscr.Refresh()
@@ -109,7 +118,7 @@ func (tw *TransWindow) Prompt(title string, items []string) string {
 			return items[active]
 		default:
 			// Todo
-			tw.stdscr.MovePrintf(tw.my-2, 0, "Character pressed = %3d/%c",
+			tw.stdscr.MovePrint(tw.my-2, 0, "Character pressed = %3d/%c",
 				ch, ch)
 			tw.stdscr.ClearToEOL()
 			tw.stdscr.Refresh()
@@ -125,6 +134,7 @@ func (tw *TransWindow) End() {
 func draw(w *Window, menu []string, active int) {
 	y, x := 2, 2
 	w.Box(0, 0)
+	//w.Background()
 	for i, s := range menu {
 		if i == active {
 			w.AttrOn(A_REVERSE)
