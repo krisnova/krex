@@ -35,6 +35,7 @@ func (n *DaemonSetExplorer) RunPrompt() (string, error) {
 		strs = append(strs, item.GetReadable())
 	}
 	selection := transXY.Prompt("Select DaemonSet resources", strs)
+	checkExitItem(selection)
 	return selection, nil
 }
 

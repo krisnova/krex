@@ -53,7 +53,7 @@ type RuntimeOptions struct {
 
 func Init(opt *RuntimeOptions) error {
 	var err error
-	transXY, err = trans.GetNewWindow(trans.DefaultHeight, trans.DefaultWidth)
+	transXY, err = trans.GetNewWindow()
 	defer transXY.End()
 	if err != nil {
 		return fmt.Errorf("unable to initialize trans system: %v", err)

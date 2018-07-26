@@ -16,7 +16,7 @@ dependencies::
 
 .PHONY: build
 build::
-	go build -o krex -ldflags "-X ${package}/cmd.version=${version}" .
+	go build -o krex -ldflags "-X ${package}/trans.Version=${version}" .
 
 .PHONY: test
 test::

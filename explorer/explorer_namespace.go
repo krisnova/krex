@@ -78,6 +78,7 @@ func (n *NamespaceExplorer) RunPrompt() (string, error) {
 		strs = append(strs, item.GetReadable())
 	}
 	selection := transXY.Prompt("Select Namespace resource", strs)
+	checkExitItem(selection)
 	return selection, nil
 }
 

@@ -73,3 +73,9 @@ func AddExit(items []*MenuItem) []*MenuItem {
 	m.SetName("Exit")
 	return append(items, m)
 }
+
+func checkExitItem(item string) {
+	if item == "" {
+		Exit()
+	}
+}

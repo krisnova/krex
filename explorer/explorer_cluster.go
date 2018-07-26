@@ -38,6 +38,7 @@ func (n *ClusterExplorer) RunPrompt() (string, error) {
 		strs = append(strs, item.GetReadable())
 	}
 	selection := transXY.Prompt("Select cluster resource", strs)
+	checkExitItem(selection)
 	return selection, nil
 }
 
