@@ -14,8 +14,10 @@ import (
 
 const (
 	DefaultHeight = 30
-	DefaultWidth  = 50
+	//DefaultWidth  = 200
 )
+
+var Version = ""
 
 type TransWindow struct {
 	height int
@@ -30,12 +32,16 @@ type TransWindow struct {
 	stdscr *Window
 }
 
-func GetNewWindow(height, width int) (*TransWindow, error) {
+func GetNewWindow() (*TransWindow, error) {
 	stdscr, err := Init()
 	if err != nil {
 		return nil, err
 	}
 	my, mx := stdscr.MaxYX()
+
+	// Calculate 20 percent of the terminal for margin around our window
+	width := mx - int(float64(mx)*float64(.2))
+	height := my - int(float64(my)*float64(.2))
 
 	// Offset of the inner window
 	y, x := 2, (mx/2)-(width/2)
@@ -78,14 +84,18 @@ func (tw *TransWindow) Prompt(title string, items []string) string {
 	var active int
 
 	// Clear the window
-	//tw.window.Clear()
+	tw.window.Clear()
 	tw.window.Refresh()
 
 	// Clear the main screen
-
-	//tw.stdscr.Clear()
+	tw.stdscr.Clear()
 	tw.stdscr.Refresh()
-	tw.stdscr.Print(title)
+
+	tw.stdscr.Printf("Krex version [%s]", Version)
+	tw.stdscr.Printf("\n")
+	tw.stdscr.Printf("Kubernetes Resource Explore by Kris Nova <kris@fabulous.af>")
+	tw.stdscr.Printf("\n")
+	tw.stdscr.Printf("Exit character [q]")
 
 	// Draw the inital window
 	draw(tw.window, items, active)
@@ -132,6 +142,7 @@ func (tw *TransWindow) End() {
 }
 
 func draw(w *Window, menu []string, active int) {
+
 	y, x := 2, 2
 	w.Box(0, 0)
 	//w.Background()

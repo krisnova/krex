@@ -61,6 +61,7 @@ func (n *PodExplorer) RunPrompt() (string, error) {
 		strs = append(strs, item.GetReadable())
 	}
 	selection := transXY.Prompt("Select Pod resources", strs)
+	checkExitItem(selection)
 	return selection, nil
 }
 

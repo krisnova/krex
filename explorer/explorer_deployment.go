@@ -33,6 +33,7 @@ func (n *DeploymentExplorer) RunPrompt() (string, error) {
 		strs = append(strs, item.GetReadable())
 	}
 	selection := transXY.Prompt("Select Deployment resources", strs)
+	checkExitItem(selection)
 	return selection, nil
 }
 

@@ -33,6 +33,7 @@ func (n *StatefulSetExplorer) RunPrompt() (string, error) {
 		strs = append(strs, item.GetReadable())
 	}
 	selection := transXY.Prompt("Select StatefulSet resources", strs)
+	checkExitItem(selection)
 	return selection, nil
 }
 
