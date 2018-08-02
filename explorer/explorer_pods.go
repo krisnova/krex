@@ -65,5 +65,4 @@ func (n *PodsExplorer) Execute(selection string) error {
 	default:
 		return fmt.Errorf("unable to parse selection: %s", selection)
 	}
-	return nil
 }
