@@ -5,8 +5,6 @@ import (
 	"strings"
 )
 
-const ()
-
 type DeploymentExplorer struct {
 	Items               []*MenuItem
 	PreviousItem        *MenuItem
@@ -56,5 +54,4 @@ func (n *DeploymentExplorer) Execute(selection string) error {
 	default:
 		return fmt.Errorf("unable to parse selection: %s", selection)
 	}
-	return nil
 }
